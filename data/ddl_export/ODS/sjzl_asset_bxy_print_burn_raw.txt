@@ -1,0 +1,23 @@
+CREATE TABLE ODS.sjzl_asset_bxy_print_burn_raw
+(
+    `id` String COMMENT '标识符',
+    `devip` String COMMENT '设备标识符',
+    `created_timestamp` Int64 COMMENT '原始13位时间戳(毫秒)',
+    `created` DateTime64(3) MATERIALIZED toDateTime64(created_timestamp / 1000, 3) COMMENT '转换后的时间',
+    `op_name` String COMMENT '操作名称',
+    `subject` String COMMENT '主体',
+    `description` String COMMENT '描述',
+    `task_type` String COMMENT '任务类型',
+    `task_serial` String COMMENT '任务唯一标识',
+    `task_name` String COMMENT '任务名称',
+    `task_sec` String COMMENT '任务密级',
+    `file_copies` UInt8 COMMENT '份数',
+    `file_sizes` UInt32 COMMENT '大小(字节)',
+    `file_pages` UInt16 COMMENT '页数',
+    `host_ip` String COMMENT '账号信息'
+)
+ENGINE = MergeTree
+PARTITION BY toYYYYMM(created)
+ORDER BY (created, task_type, task_serial)
+SETTINGS index_granularity = 8192
+COMMENT '北信源打印刻录'

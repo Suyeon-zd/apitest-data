@@ -1,0 +1,18 @@
+CREATE TABLE ADS.zjg_wlhyyxtyc_user_access_peripherals
+(
+    `id` String DEFAULT generateUUIDv4(),
+    `ip` String COMMENT '用户终端、服务器IP地址',
+    `ip_com_code` String,
+    `ip_sec_num` String,
+    `user_name` String COMMENT '用户终端、服务器责任人',
+    `department` String COMMENT '用户终端、服务器所属部门',
+    `security_level` String COMMENT '用户终端、服务器设备密级',
+    `peripherals_type` String COMMENT '无线外设类型',
+    `peripherals_vid_pid` String COMMENT '无线外设VID、PID',
+    `access_time` DateTime COMMENT '接入时间'
+)
+ENGINE = MergeTree
+PARTITION BY toYYYYMMDD(access_time)
+ORDER BY (ip_com_code, ip, ip_sec_num, access_time)
+SETTINGS index_granularity = 8192
+COMMENT '网络和应用系统异常类监管事件-用户终端、服务器违规接入无线外围设备（无线鼠标、无线键盘、无线网卡等）'

@@ -1,0 +1,41 @@
+CREATE TABLE ODS.sjzl_flow_smtp_raw
+(
+    `event_source` String,
+    `timestamp` UInt64,
+    `commid` String,
+    `interface` String,
+    `ts` UInt64,
+    `proto` String,
+    `collect_time` UInt64,
+    `uuid` String,
+    `sensor_name` String,
+    `sensor_ip` String,
+    `platform` String,
+    `src_ip` String,
+    `src_port` UInt32,
+    `dst_ip` String,
+    `dst_port` UInt32,
+    `sensor_id` String,
+    `interface_id` String,
+    `other_id` String,
+    `cluster_id` String,
+    `uid` String,
+    `from` String,
+    `to` String,
+    `cc` String,
+    `bcc` String,
+    `subject` String,
+    `date` String,
+    `msg_id` String,
+    `user_agent` String,
+    `x_mailer` String,
+    `x_originating_ip` String,
+    `username` String,
+    `password` String,
+    `auth_success` String,
+    `attachment_names` String,
+    `email_body` String
+)
+ENGINE = MergeTree
+ORDER BY timestamp
+SETTINGS index_granularity = 8192

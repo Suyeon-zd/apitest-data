@@ -1,0 +1,17 @@
+CREATE TABLE DWD.zjg_yhzdkh_app_kh
+(
+    `id` String DEFAULT generateUUIDv4(),
+    `app_name` String COMMENT '用户终端刻画、运维终端刻画、服务器刻画',
+    `app_device_ips_mid` String,
+    `app_account_range_mid` String,
+    `os_login_time` Date,
+    `app_visit_times_mid` Int32,
+    `app_visit_times_range_mid` String,
+    `app_visit_command_list_mid` String,
+    `app_visit_interconnection_list_mid` String,
+    `create_time` DateTime DEFAULT now() COMMENT '创建时间'
+)
+ENGINE = ReplacingMergeTree(create_time)
+PARTITION BY toYYYYMM(os_login_time)
+ORDER BY (app_name, os_login_time)
+SETTINGS index_granularity = 8192

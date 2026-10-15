@@ -1,0 +1,22 @@
+CREATE TABLE ADS.zjg_wlhyyxtyc_user_access_db
+(
+    `id` String DEFAULT generateUUIDv4(),
+    `terminal_ip` String COMMENT '访问文件服务的源终端IP地址',
+    `terminal_ip_com_code` String,
+    `terminal_ip_sec_num` String COMMENT 'BM编号',
+    `user_name` String COMMENT '直接访问数据库系统的用户终端责任人',
+    `department` String COMMENT '直接访问数据库系统的用户终端所属部门',
+    `terminal_security_level` String COMMENT '直接访问数据库系统的用户终端密级',
+    `database_ip` String COMMENT '被访问数据库系统IP地址',
+    `database_ip_com_code` String,
+    `database_ip_sec_num` String COMMENT 'BM编号',
+    `visit_time` DateTime COMMENT '用户访问时间-yyyy-MM-dd HH:mm:ss格式',
+    `visit_protocol` String COMMENT '访问协议',
+    `visit_port` String COMMENT '访问端口',
+    `operation_instruct_list` String COMMENT '数据库操作指令（非强制）'
+)
+ENGINE = MergeTree
+PARTITION BY toYYYYMMDD(visit_time)
+ORDER BY (terminal_ip_com_code, terminal_ip, terminal_ip_sec_num, visit_time)
+SETTINGS index_granularity = 8192
+COMMENT '网络和应用系统异常类监管事件-用户直接访问数据库系统'

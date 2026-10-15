@@ -1,0 +1,18 @@
+CREATE TABLE ADS.zc_result_security_situation
+(
+    `id` UUID DEFAULT generateUUIDv4(),
+    `operator_name` String,
+    `com_code` String,
+    `detection_point` Float64,
+    `description` String,
+    `execution_time` DateTime,
+    `asset_score` String COMMENT '资产安全评分',
+    `exposure_score` String COMMENT ' 暴露面评分',
+    `host_score` String COMMENT '主机安全评分',
+    `network_score` String COMMENT '网络安全评分',
+    `abnormal_score` String COMMENT '异常行为评分',
+    `management_score` String COMMENT '安全管理评分'
+)
+ENGINE = MergeTree
+ORDER BY com_code
+SETTINGS index_granularity = 8192

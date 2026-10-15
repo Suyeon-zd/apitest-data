@@ -1,0 +1,36 @@
+CREATE TABLE ODS.sjzl_asset_jida_raw
+(
+    `soc_uuid` String DEFAULT generateUUIDv4(),
+    `soc_date` Date DEFAULT CAST(now(), 'Date'),
+    `soc_date_time` DateTime DEFAULT now(),
+    `soc_date_time_timestamp` UInt64 DEFAULT toUnixTimestamp(toDateTime64(soc_date_time, 3)) * 1000 COMMENT '创建时间时间戳(毫秒)',
+    `timestamp` String,
+    `com_code` String,
+    `dev_ip` String,
+    `clientip` String COMMENT '客户端ip',
+    `operatetime` String COMMENT '操作时间20251112051423',
+    `logtype` String COMMENT '日志类型，业务日志or三员日志',
+    `operatetype` String,
+    `operateresult` String,
+    `operateobject` String,
+    `traceid` String,
+    `error_key` String,
+    `app_name` String,
+    `cascade_node_id` String,
+    `operator` String,
+    `app_code` String,
+    `log_source_ip` String COMMENT '源ip',
+    `reporting_time` String COMMENT '解析时间',
+    `flag` UInt8 DEFAULT 1,
+    `json_mess` Nullable(String) TTL soc_date + toIntervalDay(1),
+    `orig_log` Nullable(String) DEFAULT NULL COMMENT '原始日志',
+    `report_time` DateTime DEFAULT now() COMMENT '日志时间',
+    `report_time_timestamp` UInt64 DEFAULT toUnixTimestamp(toDateTime64(report_time, 3)) * 1000 COMMENT '日志时间-时间戳',
+    `operating` String COMMENT '操作用户'
+)
+ENGINE = MergeTree
+PARTITION BY toYYYYMMDD(toDateTime(toUInt64(timestamp)))
+PRIMARY KEY soc_uuid
+ORDER BY (soc_uuid, timestamp)
+TTL soc_date + toIntervalDay(180)
+SETTINGS index_granularity = 8192

@@ -1,0 +1,20 @@
+CREATE TABLE ODS.sys_ruixing_x86
+(
+    `date` DateTime,
+    `virus_name` String COMMENT '病毒名',
+    `virus_type` String COMMENT '病毒类型',
+    `clear_result` String COMMENT '清除结果',
+    `virus_discoverer` String COMMENT '病毒发现者',
+    `infected_files` String COMMENT '感染的文件',
+    `infected_path` String COMMENT '感染路径',
+    `discovery_date` String COMMENT '发现日期',
+    `pc_name` String COMMENT '计算机名称',
+    `ip` String,
+    `identifier` String COMMENT '标识ip',
+    `log_source_ip` String COMMENT '源ip',
+    `reporting_time` String COMMENT '解析时间',
+    `flag` UInt8 DEFAULT 1
+)
+ENGINE = MergeTree
+ORDER BY date
+SETTINGS index_granularity = 8192

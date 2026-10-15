@@ -1,0 +1,47 @@
+CREATE TABLE DWD.sjzl_asset_zjg_terminal_login
+(
+    `soc_uuid` String DEFAULT generateUUIDv4(),
+    `soc_date` Date DEFAULT CAST(now(), 'Date'),
+    `company` String COMMENT '厂商名称',
+    `product` String COMMENT '产品名称',
+    `log_type` String COMMENT '日志类型',
+    `host_ip` String COMMENT 'IP',
+    `host_mac` String COMMENT 'MAC',
+    `host_name` String COMMENT '终端／服务器名称',
+    `user_name` String COMMENT '贡任人',
+    `department` String COMMENT '部门名称',
+    `department_id` String COMMENT '部门编号',
+    `full_department` String COMMENT '部门全称',
+    `unit` String COMMENT '单位名称',
+    `host_sec_level` String COMMENT '终端／服务器密级',
+    `login_type` String COMMENT '安全登录类型',
+    `ukey_seral_number` String COMMENT '登承钥匙序列号',
+    `login_account` String COMMENT '登承钥匙',
+    `login_logout_time` String COMMENT '登录／登出时间',
+    `login_result` String COMMENT '橾作结果',
+    `ukey_type` String COMMENT '登录钥匙类型',
+    `ukey_user_name` String COMMENT '登录钥匙责任人',
+    `ukey_department` String COMMENT '登录钥匙责任部门',
+    `log_time` String COMMENT '日志时间',
+    `host_id` String COMMENT '终端编号',
+    `desc` String COMMENT '描述信息',
+    `action_type` String COMMENT '橾作类型',
+    `account` String COMMENT '橾作账号',
+    `account_role` String COMMENT '操作账号角色',
+    `com_code` String,
+    `dev_ip` String,
+    `log_event` String COMMENT '日志事件',
+    `json_mess` String COMMENT '日志原文',
+    `soc_date_time` DateTime DEFAULT now() COMMENT '日期时间',
+    `soc_date_time_timestamp` UInt64 DEFAULT toUnixTimestamp(toDateTime64(soc_date_time, 3)) * 1000 COMMENT '日期时间-时间戳',
+    `report_time` DateTime DEFAULT now() COMMENT '日志时间',
+    `report_time_timestamp` UInt64 DEFAULT toUnixTimestamp(toDateTime64(report_time, 3)) * 1000 COMMENT '日志时间-时间戳',
+    `orig_log` Nullable(String) DEFAULT NULL COMMENT '原始日志'
+)
+ENGINE = ReplacingMergeTree
+PARTITION BY toYYYYMMDD(soc_date)
+PRIMARY KEY soc_uuid
+ORDER BY (soc_uuid, soc_date, log_type, host_ip)
+TTL soc_date + toIntervalDay(180)
+SETTINGS index_granularity = 8192
+COMMENT '终端安全登录系统'

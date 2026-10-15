@@ -1,0 +1,9 @@
+CREATE TABLE ODS.sys_com_code
+(
+    `com_all_name` String,
+    `com_code` String,
+    `com_name` String
+)
+ENGINE = MergeTree
+ORDER BY com_code
+SETTINGS index_granularity = 8192

@@ -1,0 +1,61 @@
+CREATE TABLE DWD.sjzl_asset_zjg_config_manage
+(
+    `soc_uuid` String DEFAULT generateUUIDv4(),
+    `soc_date` Date DEFAULT CAST(now(), 'Date'),
+    `company` String COMMENT '厂商名称',
+    `product` String COMMENT '产品名称',
+    `log_type` String COMMENT '日志类型',
+    `host_ip` String COMMENT 'IP',
+    `host_mac` String COMMENT 'MAC',
+    `log_time` String COMMENT '日志时间',
+    `host_id` String COMMENT '终端ID',
+    `user_name` String COMMENT '终端责任人',
+    `department_id` String COMMENT '部门ID',
+    `department` String COMMENT '部门名称',
+    `full_department` String COMMENT '部门全称',
+    `unit` String COMMENT '单位名称',
+    `login_user` String COMMENT '登录账户',
+    `result` String COMMENT '操作结果',
+    `out_time` String COMMENT '告咎时间',
+    `zone_code` String COMMENT '区域划分码',
+    `host_name` String COMMENT '设备名称',
+    `host_os` String COMMENT '抚作系统信息',
+    `master_code` String COMMENT '主板序号',
+    `hd_code` String COMMENT '硬盘序列号',
+    `out_ip` String COMMENT '外网IP',
+    `net_card` String COMMENT '网卡信息',
+    `host_sec_level` String COMMENT '设备密级',
+    `terminal_ver` String COMMENT '套件版本',
+    `desc` String COMMENT '描述信息',
+    `company_code` String COMMENT '生成厂京编码',
+    `action_type` String COMMENT '橾作类型',
+    `device_type` String COMMENT '违规接入设备类型',
+    `version` String COMMENT '客户端版本号',
+    `policy_name` String COMMENT '策略名称',
+    `prev_status` String COMMENT '修改前状态',
+    `cur_status` String COMMENT '修改后状态',
+    `vid` String COMMENT 'vid',
+    `pid` String COMMENT 'pid',
+    `class` String COMMENT 'class',
+    `sn` String COMMENT '序列号',
+    `media_user` String COMMENT '介质责任人',
+    `media_sec_level` String COMMENT '介质密级',
+    `media_type` String COMMENT '介质',
+    `com_code` String,
+    `dev_ip` String,
+    `log_event` String COMMENT '日志事件',
+    `json_mess` String COMMENT '日志原文',
+    `host_user` String,
+    `soc_date_time` DateTime DEFAULT now() COMMENT '日期时间',
+    `soc_date_time_timestamp` UInt64 DEFAULT toUnixTimestamp(toDateTime64(soc_date_time, 3)) * 1000 COMMENT '日期时间-时间戳',
+    `report_time` DateTime DEFAULT now() COMMENT '日志时间',
+    `report_time_timestamp` UInt64 DEFAULT toUnixTimestamp(toDateTime64(report_time, 3)) * 1000 COMMENT '日志时间-时间戳',
+    `orig_log` Nullable(String) DEFAULT NULL COMMENT '原始日志'
+)
+ENGINE = ReplacingMergeTree
+PARTITION BY toYYYYMMDD(soc_date)
+PRIMARY KEY soc_uuid
+ORDER BY (soc_uuid, soc_date, log_type, host_ip)
+TTL soc_date + toIntervalDay(180)
+SETTINGS index_granularity = 8192
+COMMENT '涉密专用配置管理及三合一管理融合系统'

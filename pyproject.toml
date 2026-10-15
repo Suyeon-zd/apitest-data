@@ -1,0 +1,9 @@
+[project]
+name = "apitest-data"
+version = "0.1.0"
+description = "批量测试数据构造工具（从 apitest 抽离的独立项目）"
+requires-python = ">=3.10"
+readme = "README.md"
+
+[tool.setuptools.packages.find]
+include = ["data"]

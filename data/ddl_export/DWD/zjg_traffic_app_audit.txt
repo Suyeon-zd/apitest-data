@@ -1,0 +1,25 @@
+CREATE TABLE DWD.zjg_traffic_app_audit
+(
+    `soc_uuid` String DEFAULT generateUUIDv4(),
+    `tenant_id` Nullable(String),
+    `soc_date_time` DateTime DEFAULT now(),
+    `soc_date` Date MATERIALIZED toDate(soc_date_time),
+    `soc_date_time_timestamp` UInt64 MATERIALIZED toUnixTimestamp(soc_date_time) * 1000 COMMENT '创建时间时间戳',
+    `updated_at` UInt64 COMMENT '最近活跃时间，单位毫秒',
+    `updated_at_date_time` DateTime DEFAULT toDateTime(updated_at / 1000, 'Asia/Shanghai'),
+    `updated_at_date` Date DEFAULT toDate(toDateTime(updated_at / 1000)),
+    `dev_id` String COMMENT '设备ID保密检测器标识码',
+    `data_type` UInt8 COMMENT '数据类型：1、设备类别数据；2、应用类别数据',
+    `app_type` UInt8 COMMENT '应用类型',
+    `app_middleware` Nullable(String) COMMENT '应用系统中间件',
+    `middleware_version` Nullable(String) COMMENT '中间件版本',
+    `ip` Nullable(String) COMMENT '应用系统IP地址',
+    `port` UInt32 COMMENT '应用系统port端口',
+    `extended_fields` Nullable(String) COMMENT '扩展字段集合'
+)
+ENGINE = MergeTree
+PARTITION BY updated_at_date
+ORDER BY (dev_id, data_type, app_type, updated_at)
+TTL soc_date + toIntervalDay(180)
+SETTINGS index_granularity = 8192
+COMMENT '保密检测器-应用活动对象审计日志'

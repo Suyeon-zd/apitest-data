@@ -1,0 +1,10 @@
+CREATE TABLE ADS.itle_resource_update
+(
+    `id` String DEFAULT generateUUIDv4(),
+    `record` String,
+    `create_time` DateTime DEFAULT now()
+)
+ENGINE = MergeTree
+ORDER BY create_time
+SETTINGS index_granularity = 8192
+COMMENT 'itle更新时间迁移至mysql'

@@ -1,0 +1,25 @@
+CREATE TABLE ODS.sjzl_asset_nsfocus_jumpserver
+(
+    `login_time` String COMMENT '登陆时间',
+    `logout_time` String COMMENT '登出时间',
+    `user` String COMMENT '用户名',
+    `dev_usr` String COMMENT '设备用户',
+    `dev_ip` String COMMENT '设备ip',
+    `protocol` String COMMENT '协议（字符审计：SSH，图形审计：RDP，操作日志：其他）',
+    `time` String COMMENT '日志产生时间',
+    `loginip` String COMMENT '登录ip',
+    `comment` String COMMENT '注释',
+    `com_code` String,
+    `soc_uuid` String DEFAULT generateUUIDv4(),
+    `soc_date` Date DEFAULT CAST(now(), 'Date'),
+    `soc_date_time` DateTime DEFAULT now(),
+    `soc_date_time_timestamp` UInt64 DEFAULT toUnixTimestamp(toDateTime64(soc_date_time, 3)) * 1000 COMMENT '创建时间时间戳(毫秒)',
+    `json_mess` Nullable(String) TTL soc_date + toIntervalDay(1),
+    `seesion_id` String,
+    `device_ip` String,
+    `receipt_time` String
+)
+ENGINE = MergeTree
+ORDER BY time
+SETTINGS index_granularity = 8192
+COMMENT '绿盟堡垒机日志表'

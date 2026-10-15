@@ -1,0 +1,8 @@
+CREATE TABLE ADS.zc_xw_behavior_securityips_table
+(
+    `ip` String,
+    `create_time` String
+)
+ENGINE = MergeTree
+ORDER BY create_time
+SETTINGS index_granularity = 8192

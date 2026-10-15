@@ -1,0 +1,43 @@
+CREATE TABLE ODS.sjzl_flow_pop3_raw
+(
+    `event_source` String,
+    `timestamp` UInt64,
+    `commid` String,
+    `interface` String,
+    `ts` UInt64,
+    `proto` String,
+    `collect_time` UInt64,
+    `uuid` String,
+    `sensor_name` String,
+    `sensor_ip` String,
+    `platform` String,
+    `src_ip` String,
+    `src_port` UInt32,
+    `dst_ip` String,
+    `dst_port` UInt32,
+    `sensor_id` String,
+    `interface_id` String,
+    `other_id` String,
+    `cluster_id` String,
+    `uid` String,
+    `username` String,
+    `password` String,
+    `received` String,
+    `from` String,
+    `to` String,
+    `cc` String,
+    `bcc` String,
+    `subject` String,
+    `date` String,
+    `msg_id` String,
+    `auth_success` String,
+    `attachment_names` String,
+    `user_agent` String,
+    `email_body` String,
+    `attachment_names_frequency` String,
+    `src_com_code` String,
+    `dst_com_code` String
+)
+ENGINE = MergeTree
+ORDER BY timestamp
+SETTINGS index_granularity = 8192

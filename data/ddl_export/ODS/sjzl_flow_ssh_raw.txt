@@ -1,0 +1,39 @@
+CREATE TABLE ODS.sjzl_flow_ssh_raw
+(
+    `event_source` String,
+    `timestamp` UInt64,
+    `commid` String,
+    `interface` String,
+    `ts` UInt64,
+    `proto` String,
+    `collect_time` UInt64,
+    `uuid` String,
+    `sensor_name` String,
+    `sensor_ip` String,
+    `platform` String,
+    `src_ip` String,
+    `src_port` UInt32,
+    `dst_ip` String,
+    `dst_port` UInt32,
+    `sensor_id` String,
+    `interface_id` String,
+    `other_id` String,
+    `cluster_id` String,
+    `uid` String,
+    `proto_version` String,
+    `software_version` String,
+    `server_proto_version` String,
+    `server_software_version` String,
+    `auth_success` String,
+    `hassh` String,
+    `hasshserver` String,
+    `packets_ts` String,
+    `packets_size` String,
+    `packets_dir` String,
+    `frequency` String,
+    `src_com_code` String,
+    `dst_com_code` String
+)
+ENGINE = MergeTree
+ORDER BY timestamp
+SETTINGS index_granularity = 8192

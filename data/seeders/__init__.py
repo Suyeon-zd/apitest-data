@@ -1,0 +1,1 @@
+# data/seeders - 输出适配器：把 (columns, rows) 写到不同目标

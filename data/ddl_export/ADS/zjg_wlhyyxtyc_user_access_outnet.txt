@@ -1,0 +1,29 @@
+CREATE TABLE ADS.zjg_wlhyyxtyc_user_access_outnet
+(
+    `id` String DEFAULT generateUUIDv4(),
+    `out_time` DateTime COMMENT '违规外联告警时间',
+    `zone_code` String COMMENT '地区编码',
+    `unit_name` String COMMENT '外联设备所属单位名称',
+    `department` String COMMENT '外联设备所属部门',
+    `host_user` String COMMENT '外联设备责任人信息',
+    `host_mac` String COMMENT '外联设备MAC地址',
+    `host_name` String COMMENT '外联设备名称',
+    `host_id` String COMMENT '外联设备ID',
+    `host_os` String COMMENT '外联设备的操作系统及其版本信息',
+    `master_code` String COMMENT '外联设备的主板序号',
+    `hd_code` String COMMENT '外联设备的硬盘序列号',
+    `host_ip` String COMMENT '外联设备的内网IP地址',
+    `host_ip_com_code` String COMMENT '外联设备的内网IP地址',
+    `host_ip_sec_num` String COMMENT '外联设备的内网IP地址',
+    `out_ip` String COMMENT '违规连接的外网IP地址',
+    `net_card` String COMMENT '外联设备的网卡信息',
+    `sec_level` String COMMENT '用户终端、服务器设备密级',
+    `terminal_ver` String COMMENT '客户端套件或三合一软件的版本',
+    `out_memo` String COMMENT '违规外联的详细描述信息',
+    `company_code` String COMMENT '客户端套件或三合一软件的生成厂家编码'
+)
+ENGINE = MergeTree
+PARTITION BY toYYYYMMDD(out_time)
+ORDER BY (host_ip_com_code, host_ip, host_ip_sec_num, out_time)
+SETTINGS index_granularity = 8192
+COMMENT '网络和应用系统异常类监管事件-用户终端、服务器违规连接互联网'

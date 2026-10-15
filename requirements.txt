@@ -1,0 +1,18 @@
+# ---- 造数核心（必装）----
+PyYAML>=6.0
+requests>=2.31
+openpyxl>=3.1
+Faker>=20.0
+python-dotenv>=1.0
+
+# ---- 数据库驱动（按需；未安装的库会自动跳过）----
+PyMySQL>=1.1
+clickhouse-connect>=0.7
+clickhouse-driver>=0.2
+PyHive>=0.7
+
+# ---- 可选增强 ----
+pypinyin>=0.51
+
+# ---- 测试 ----
+pytest>=8.0

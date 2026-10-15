@@ -1,0 +1,20 @@
+CREATE TABLE ADS.zc_xw_behavior_time_table
+(
+    `id` UUID DEFAULT generateUUIDv4(),
+    `ip` String,
+    `name` String,
+    `severity_level` String,
+    `result` String,
+    `result_create_time` DateTime,
+    `operator_name` String,
+    `execution_time` DateTime,
+    `score` Float64,
+    `company` String,
+    `department` String,
+    `uuid_list_str` String,
+    `behavior_type` String DEFAULT 'exception',
+    `com_code` String
+)
+ENGINE = MergeTree
+ORDER BY id
+SETTINGS index_granularity = 8192

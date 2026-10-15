@@ -1,0 +1,52 @@
+CREATE TABLE ODS.sjzl_asset_tieqiong_APT_raw
+(
+    `soc_uuid` String DEFAULT generateUUIDv4(),
+    `soc_date` Date DEFAULT CAST(now(), 'Date'),
+    `soc_date_time` DateTime DEFAULT now(),
+    `soc_date_time_timestamp` UInt64 DEFAULT toUnixTimestamp(toDateTime64(soc_date_time, 3)) * 1000 COMMENT '创建时间时间戳(毫秒)',
+    `status` String,
+    `dport` String,
+    `sport` String,
+    `ruleid` String,
+    `logtype` String,
+    `host` String,
+    `rval` String,
+    `rt` String,
+    `category` String,
+    `Time` DateTime,
+    `method` String,
+    `attackerip` String,
+    `sip` String,
+    `url` String,
+    `ap` String,
+    `geo` String,
+    `type` String,
+    `pip` String,
+    `dip` String,
+    `level` String,
+    `table` String,
+    `info` String,
+    `cnt` String,
+    `proto` String,
+    `fid` String,
+    `pid` String,
+    `behav` String,
+    `hash` String,
+    `from` String,
+    `filename` String,
+    `av` String,
+    `dgeo` String,
+    `remark` String,
+    `sgeo` String,
+    `md5` String,
+    `dev_ip` String COMMENT '标识ip',
+    `flag` UInt8 DEFAULT 1,
+    `com_code` String,
+    `json_mess` Nullable(String) TTL soc_date + toIntervalDay(1)
+)
+ENGINE = ReplacingMergeTree
+PARTITION BY toYYYYMMDD(Time)
+PRIMARY KEY soc_uuid
+ORDER BY (soc_uuid, sip, dip, type, Time)
+TTL soc_date + toIntervalDay(180)
+SETTINGS index_granularity = 8192, allow_nullable_key = 1

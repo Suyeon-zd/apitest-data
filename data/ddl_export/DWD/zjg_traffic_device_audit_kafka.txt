@@ -1,0 +1,16 @@
+CREATE TABLE DWD.zjg_traffic_device_audit_kafka
+(
+    `data_type` UInt8,
+    `device_id` String,
+    `device_model` Nullable(String),
+    `device_type` UInt8,
+    `dns_info` String,
+    `extended_fields` Nullable(String),
+    `ip` Nullable(String),
+    `mac` Nullable(String),
+    `os` Nullable(String),
+    `os_version` Nullable(String),
+    `updated_at` UInt64
+)
+ENGINE = Kafka
+SETTINGS kafka_broker_list = '10.148.242.205:9092', kafka_topic_list = 'flow_device_audit', kafka_group_name = 'flow_device_audit_consumer_group', kafka_format = 'JSONEachRow'

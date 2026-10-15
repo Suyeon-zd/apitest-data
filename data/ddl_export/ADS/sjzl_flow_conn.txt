@@ -1,0 +1,41 @@
+CREATE TABLE ADS.sjzl_flow_conn
+(
+    `timestamp` UInt64,
+    `create_time_date` Date DEFAULT toDate(fromUnixTimestamp64Milli(timestamp)),
+    `tcp_payload` String,
+    `fwd_packet_length_min` String,
+    `fwd_packet_length_mean` String,
+    `bwd_packet_length_min` String,
+    `flow_iat_min` String,
+    `flow_iat_std` String,
+    `bwd_iat_min` String,
+    `syn_count` String,
+    `ece_count` String,
+    `cwr_count` String,
+    `bwd_init_win_bytes` String,
+    `bwd_packets_s` String,
+    `fwd_psh_count` String,
+    `bwd_psh_count` String,
+    `fwd_urg_count` String,
+    `bwd_urg_count` String,
+    `fwd_header_length` String,
+    `bwd_header_length` String,
+    `fin_count` String,
+    `rst_count` String,
+    `psh_count` String,
+    `ack_count` String,
+    `urg_count` String,
+    `flag` UInt8 DEFAULT 1,
+    `sip` String,
+    `dip` String,
+    `sport` String,
+    `dport` String,
+    `fwd_packet_length_max` String,
+    `uid` String,
+    `proto` String,
+    `bytecount` String DEFAULT 600
+)
+ENGINE = ReplacingMergeTree
+ORDER BY timestamp
+TTL create_time_date + toIntervalDay(90)
+SETTINGS index_granularity = 8192

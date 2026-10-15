@@ -1,0 +1,42 @@
+CREATE TABLE ODS.sys_ahjh_DAS
+(
+    `soc_uuid` String DEFAULT generateUUIDv4(),
+    `soc_date` Date DEFAULT CAST(now(), 'Date'),
+    `soc_date_time` DateTime DEFAULT now(),
+    `soc_date_time_timestamp` UInt64 DEFAULT toUnixTimestamp(toDateTime64(soc_date_time, 3)) * 1000 COMMENT '创建时间时间戳(毫秒)',
+    `com_code` String,
+    `date` DateTime,
+    `reporting_time` String COMMENT '解析时间',
+    `capture_time` String COMMENT '捕获时间',
+    `client_ip` String COMMENT '客户端IP',
+    `client_port` String COMMENT '客户端端口',
+    `database_ip` String COMMENT '数据库IP',
+    `dst_ip_com_code` String COMMENT '数据库IP所在单位编码',
+    `database_port` String COMMENT '数据库端口',
+    `service_name` String COMMENT '服务（实例）名',
+    `risk_type` String COMMENT '风险类型',
+    `risk_level` String COMMENT '风险级别',
+    `rule_name` String COMMENT '规则名称',
+    `client_mac` String COMMENT '客户端MAC',
+    `database_user` String COMMENT '数据库用户',
+    `os_user` String COMMENT '操作系统用户',
+    `client_tool` String COMMENT '客户端工具',
+    `sql` Nullable(String) COMMENT 'SQL报文',
+    `protected_database` String COMMENT '被保护数据库',
+    `dev_ip` String COMMENT '标识ip',
+    `log_source_ip` String COMMENT '源ip',
+    `flag` UInt8 DEFAULT 1,
+    `json_mess` Nullable(String) TTL soc_date + toIntervalDay(1),
+    `function` String COMMENT '功能',
+    `action` String COMMENT '动作',
+    `update_before` String COMMENT '更新前',
+    `update_after` String COMMENT '更新后',
+    `comment` String COMMENT '描述',
+    `result` String COMMENT '结果'
+)
+ENGINE = MergeTree
+PARTITION BY toYYYYMMDD(date)
+PRIMARY KEY soc_uuid
+ORDER BY (soc_uuid, date)
+TTL soc_date + toIntervalDay(180)
+SETTINGS index_granularity = 8192

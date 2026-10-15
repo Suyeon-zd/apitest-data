@@ -1,0 +1,37 @@
+CREATE MATERIALIZED VIEW DWD.zjg_traffic_device_status_mv TO DWD.zjg_traffic_device_status
+(
+    `record_time` UInt64,
+    `record_date_time` DateTime('Asia/Shanghai'),
+    `record_date` Date,
+    `dev_id` String,
+    `data_type` UInt8,
+    `device_sys_version` String,
+    `device_soft_version` String,
+    `device_bios_version` String,
+    `device_cpu_core` UInt8,
+    `device_cpu_usage` UInt8,
+    `device_mem_size` UInt8,
+    `device_mem_usage` UInt8,
+    `monitor_ip` String,
+    `manage_url` String,
+    `device_status` String,
+    `interface_status` String
+)
+AS SELECT
+    record_time,
+    toDateTime(record_time / 1000, 'Asia/Shanghai') AS record_date_time,
+    toDate(toDateTime(record_time / 1000, 'Asia/Shanghai')) AS record_date,
+    device_id AS dev_id,
+    data_type,
+    device_sys_version,
+    device_soft_version,
+    device_bios_version,
+    device_cpu_core,
+    device_cpu_usage,
+    device_mem_size,
+    device_mem_usage,
+    monitor_ip,
+    '' AS manage_url,
+    device_status,
+    interface_status
+FROM DWD.zjg_traffic_device_status_kafka

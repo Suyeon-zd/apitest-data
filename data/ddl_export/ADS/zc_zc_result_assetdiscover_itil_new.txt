@@ -1,0 +1,22 @@
+CREATE TABLE ADS.zc_zc_result_assetdiscover_itil_new
+(
+    `id` UUID DEFAULT generateUUIDv4(),
+    `ip` String,
+    `unit` String,
+    `create_time` DateTime64(3),
+    `source` String,
+    `com_code` String,
+    `vulnerability_scanning_task_name` String,
+    `vulnerability_scanning_port` String,
+    `vulnerability_scanning_protocol` String,
+    `traffic_pointer_protocol` String,
+    `traffic_pointer_src_ip` String,
+    `traffic_pointer_dst_ip` String,
+    `traffic_pointer_src_port` String,
+    `traffic_pointer_dst_port` String
+)
+ENGINE = ReplacingMergeTree(create_time)
+PRIMARY KEY ip
+ORDER BY ip
+SETTINGS index_granularity = 8192
+COMMENT '资产发现-流量探针-NEW'

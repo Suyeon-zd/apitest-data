@@ -1,0 +1,97 @@
+# sys_user 表（MySQL 配置数据 - 用户信息）定义：DDL + 数据构造规则合一
+# 运行：python -m data.cli --config data/tables/sys_user.yaml --dry-run
+
+db: mysql
+count: 1
+batch_size: 500
+locale: zh_CN
+
+ddl: |-
+  CREATE TABLE `sys_user` (
+    `user_id` bigint NOT NULL AUTO_INCREMENT COMMENT '用户ID',
+    `tenant_id` varchar(20) DEFAULT '000000' COMMENT '租户编号',
+    `dept_id` bigint DEFAULT NULL COMMENT '部门ID',
+    `user_name` varchar(30) NOT NULL COMMENT '用户账号',
+    `nick_name` varchar(30) NOT NULL COMMENT '用户昵称',
+    `user_type` varchar(10) DEFAULT 'sys_user' COMMENT '用户类型（sys_user系统用户）',
+    `email` varchar(50) DEFAULT '' COMMENT '用户邮箱',
+    `phonenumber` varchar(11) DEFAULT '' COMMENT '手机号码',
+    `sex` char(1) DEFAULT '0' COMMENT '用户性别（0男 1女 2未知）',
+    `avatar` bigint DEFAULT NULL COMMENT '头像地址',
+    `password` varchar(100) DEFAULT '' COMMENT '密码',
+    `status` char(1) DEFAULT '0' COMMENT '帐号状态（0正常 1停用）',
+    `del_flag` char(1) DEFAULT '0' COMMENT '删除标志（0代表存在 2代表删除）',
+    `login_ip` varchar(128) DEFAULT '' COMMENT '最后登录IP',
+    `login_date` datetime DEFAULT NULL COMMENT '最后登录时间',
+    `create_dept` bigint DEFAULT NULL COMMENT '创建部门',
+    `create_by` bigint DEFAULT NULL COMMENT '创建者',
+    `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+    `update_by` bigint DEFAULT NULL COMMENT '更新者',
+    `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+    `remark` varchar(500) DEFAULT NULL COMMENT '备注',
+    `user_flag` int DEFAULT NULL COMMENT '用户类型标记（0：系统用户，1：租户用户）',
+    `id_card` varchar(18) DEFAULT NULL COMMENT '用户身份证号',
+    `user_level` int DEFAULT NULL COMMENT '用户密级：1 核心，2 重要，3 一般',
+    `mdm_h_id` varchar(36) DEFAULT NULL,
+    `user_attr` varchar(128) DEFAULT NULL COMMENT '用户属性',
+    `is_privilege_escalation` int DEFAULT '0' COMMENT '是否需要提权',
+    `password_expire_time` datetime DEFAULT NULL COMMENT '口令过期时间',
+    `ip_login_range` varchar(2000) DEFAULT '' COMMENT '限制登录ip范围',
+    `lock_status` char(1) DEFAULT '0' COMMENT '账户锁定状态（0正常 1锁定）',
+    `lockout_time` datetime DEFAULT NULL COMMENT '账户锁定时间',
+    `data_ip_range` varchar(256) DEFAULT NULL COMMENT '限制用户查询数据的ip范围',
+    `data_event_type` varchar(16) DEFAULT NULL COMMENT '限制用户查询数据的类型范围',
+    PRIMARY KEY (`user_id`) USING BTREE
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='用户信息表';
+
+rules:
+  # user_id 是 AUTO_INCREMENT → 自动跳过
+  tenant_id:
+    fixed: "000000"
+  dept_id:
+    fixed: "100"
+  user_name:
+    template: "user-{random_int:6}"
+  nick_name:
+    ref: user_name
+#  email:
+#    faker: email
+#  phonenumber:                       # 也会被启发式规则自动识别，这里显式写一下
+#    faker: phone_number
+#  sex:
+#    choice: ["0", "1", "2"]           # 0男 1女 2未知
+#  status:
+#    fixed: "0"
+#  del_flag:
+#    fixed: "0"
+#  lock_status:
+#    fixed: "0"
+#  user_flag:
+#    choice: [0, 1]                    # 0系统用户 1租户用户
+#  user_level:
+#    choice: [1, 2, 3]                # 1核心 2重要 3一般
+#    weights: [1, 3, 6]
+#  is_privilege_escalation:
+#    fixed: 0
+#  password:
+#    fixed: "$2a$10$7JB720yubVSZvUI0rEqK/.VdGOZrSEW6k3Xc8nLP1w3m0aQVdIGmK"   # 占位密码哈希
+#  login_ip:
+#    faker: ipv4
+#  login_date:
+#    faker: date_time_this_year
+#  create_time:
+#    skip: true                        # 交给应用层填充，这里跳过
+#  update_time:
+#    skip: true
+#  create_by:
+#    skip: true
+#  update_by:
+#    skip: true
+#  create_dept:
+#    range: [100, 200]
+#  dept_id:
+#    range: [100, 200]
+#  id_card:                            # 列名含 id_card → 启发式自动用 ssn；这里显式指定 faker
+#    faker: ssn
+#  avatar:
+#    range: [1, 1000]

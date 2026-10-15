@@ -1,0 +1,17 @@
+CREATE TABLE DWD.zjg_yhzdkh_terminallocal_login
+(
+    `id` String DEFAULT generateUUIDv4(),
+    `opt_type` String COMMENT '用户终端刻画、运维终端刻画、服务器刻画',
+    `com_code` String,
+    `sec_num` String COMMENT 'BM编号',
+    `ip` String,
+    `mac_mid` String,
+    `os_login_time` Date,
+    `login_times_mid` UInt32,
+    `create_time` DateTime DEFAULT now(),
+    `os_login_time_mid` String
+)
+ENGINE = ReplacingMergeTree(create_time)
+PARTITION BY toYYYYMM(os_login_time)
+ORDER BY (opt_type, com_code, sec_num, ip, os_login_time)
+SETTINGS index_granularity = 8192

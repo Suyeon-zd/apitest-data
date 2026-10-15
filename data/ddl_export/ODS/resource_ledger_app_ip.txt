@@ -1,0 +1,12 @@
+CREATE TABLE ODS.resource_ledger_app_ip
+(
+    `com_code` String COMMENT '单位编码',
+    `sec_num` String COMMENT '保密编号',
+    `ips` Nullable(String) COMMENT '应用IP地址',
+    `name` String COMMENT '系统名称'
+)
+ENGINE = ReplacingMergeTree
+PRIMARY KEY (com_code, sec_num)
+ORDER BY (com_code, sec_num)
+SETTINGS index_granularity = 8192
+COMMENT '应用系统关联Ip表'

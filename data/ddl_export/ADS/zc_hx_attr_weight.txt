@@ -1,0 +1,15 @@
+CREATE TABLE ADS.zc_hx_attr_weight
+(
+    `id` UUID DEFAULT generateUUIDv4(),
+    `source` String,
+    `attr` String,
+    `source_weight` Int32,
+    `tau` Int32,
+    `priority` Int32,
+    `comment` Int32,
+    `update_time` String,
+    `explain` String
+)
+ENGINE = MergeTree
+ORDER BY id
+SETTINGS index_granularity = 8192

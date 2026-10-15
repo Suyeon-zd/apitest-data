@@ -1,0 +1,25 @@
+CREATE TABLE ADS.vul_task
+(
+    `id` String,
+    `task_name` String COMMENT '任务名称',
+    `vendor_task_id` String COMMENT '厂商定义的任务ID',
+    `vendor_name` String COMMENT '厂商名称',
+    `vendor_id` String COMMENT '厂商代号',
+    `product_name` String COMMENT '所用产品',
+    `product_version` String COMMENT '产品版本',
+    `start_time` DateTime COMMENT '扫描终止时间',
+    `end_time` DateTime COMMENT '扫描终止时间',
+    `task_type` String COMMENT '描述',
+    `scan_sip` String COMMENT '扫描开始IP',
+    `scan_eip` String COMMENT '扫描结束IP',
+    `custom_task_flag` String COMMENT '任务来源 （0 外部导入 1 设备创建 2 手工添加）',
+    `vul_count` Int32 COMMENT '漏洞数量',
+    `device_count` Int32 COMMENT '被扫描的设备数量',
+    `create_time` DateTime COMMENT '任务入库的时间，即系统当前的操作时间',
+    `tenant_id` String COMMENT '租户ID',
+    `dev_ip` String,
+    `is_execute_alg` UInt8 DEFAULT 0 COMMENT '是否已经执行过算法'
+)
+ENGINE = MergeTree
+ORDER BY id
+SETTINGS index_granularity = 8192

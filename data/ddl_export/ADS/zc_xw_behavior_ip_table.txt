@@ -1,0 +1,30 @@
+CREATE TABLE ADS.zc_xw_behavior_ip_table
+(
+    `id` UUID DEFAULT generateUUIDv4(),
+    `ip` String,
+    `disk_score` String,
+    `disk_severity_level` String,
+    `manage_score` String,
+    `manage_severity_level` String,
+    `ip_score` String,
+    `ip_severity_level` String,
+    `period_score` String,
+    `period_severity_level` String,
+    `analysis_score` String,
+    `analysis_severity_level` String,
+    `nonstandard_score` String,
+    `nonstandard_severity_level` String,
+    `security_zone_score` String,
+    `security_zone_severity_level` String,
+    `login_check_score` String,
+    `login_check_severity_level` String,
+    `execution_time` DateTime,
+    `total_score` Float64,
+    `total_severity_level` String,
+    `table_time_sum` String,
+    `start_time` DateTime,
+    `end_time` DateTime
+)
+ENGINE = MergeTree
+ORDER BY ip
+SETTINGS index_granularity = 8192

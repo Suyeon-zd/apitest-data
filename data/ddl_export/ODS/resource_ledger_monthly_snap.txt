@@ -1,0 +1,14 @@
+CREATE TABLE ODS.resource_ledger_monthly_snap
+(
+    `create_time` DateTime COMMENT '快照生成时间',
+    `com_code` String COMMENT '单位编码',
+    `data_type` String COMMENT '数据类型，例如：资产总数、合规资产数',
+    `asset_count` UInt64 COMMENT '资产数量',
+    `version` UInt64 DEFAULT toUnixTimestamp(now()) COMMENT '版本号，用于去重（每次插入当前时间）'
+)
+ENGINE = ReplacingMergeTree(version)
+PARTITION BY toYYYYMM(create_time)
+PRIMARY KEY (create_time, com_code, data_type)
+ORDER BY (create_time, com_code, data_type)
+SETTINGS index_granularity = 8192
+COMMENT '资产底账数量记录表'

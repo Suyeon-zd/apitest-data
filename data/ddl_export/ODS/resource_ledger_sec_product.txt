@@ -1,0 +1,21 @@
+CREATE TABLE ODS.resource_ledger_sec_product
+(
+    `id` String DEFAULT generateUUIDv4(),
+    `tenant_id` String,
+    `com_code` String COMMENT '单位编码',
+    `product` Nullable(String) COMMENT '安全保密产品名称',
+    `operation_url` String COMMENT '管理入库URL地址',
+    `security_level` Nullable(String) COMMENT '密级',
+    `ip` String COMMENT 'IP',
+    `port` String COMMENT '服务端口',
+    `person_no` Nullable(String) COMMENT '人员编码',
+    `parent_no` Nullable(String) COMMENT '所属组织机构或部门编码',
+    `create_time` DateTime DEFAULT now(),
+    `create_time_date` Date DEFAULT toDate(create_time),
+    `create_time_timestamp` UInt64 DEFAULT toUnixTimestamp(toDateTime64(create_time, 3)) * 1000 COMMENT '创建时间时间戳,\n\r\n不需要程序转换',
+    `update_time` DateTime DEFAULT now()
+)
+ENGINE = ReplacingMergeTree
+ORDER BY id
+SETTINGS index_granularity = 8192
+COMMENT '安全保密产品账表'

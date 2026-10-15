@@ -1,0 +1,27 @@
+CREATE TABLE ADS.sjzl_asset_jida
+(
+    `operateobject` String,
+    `traceid` String,
+    `logtype` String,
+    `error_key` String,
+    `operatetime` String,
+    `app_name` String,
+    `cascade_node_id` String,
+    `operator` String,
+    `clientip` String,
+    `app_code` String,
+    `timestamp` String,
+    `operatetype` String,
+    `operateresult` String,
+    `dev_ip` String,
+    `log_source_ip` String COMMENT '源ip',
+    `reporting_time` String COMMENT '解析时间',
+    `flag` UInt8 DEFAULT 1,
+    `com_code` String,
+    `json_mess` Nullable(String),
+    `id` String,
+    `a` String
+)
+ENGINE = MergeTree
+ORDER BY timestamp
+SETTINGS index_granularity = 8192

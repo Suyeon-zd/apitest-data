@@ -1,0 +1,51 @@
+CREATE TABLE ODS.sjzl_asset_zf_rh
+(
+    `soc_uuid` String DEFAULT generateUUIDv4(),
+    `soc_date` Date DEFAULT CAST(now(), 'Date'),
+    `soc_date_time` DateTime DEFAULT now(),
+    `soc_date_time_timestamp` UInt64 DEFAULT toUnixTimestamp(toDateTime64(soc_date_time, 3)) * 1000 COMMENT '创建时间时间戳(毫秒)',
+    `date` Nullable(DateTime) DEFAULT NULL,
+    `entry_stamp` Nullable(DateTime) DEFAULT NULL,
+    `vol_date` Nullable(DateTime) DEFAULT NULL,
+    `check_time` Nullable(DateTime) DEFAULT NULL,
+    `desc` String,
+    `out_ip` String,
+    `company` String,
+    `host_id` String,
+    `host_ip` String,
+    `mac` String,
+    `hdid` String,
+    `host` String,
+    `user` String,
+    `memo` String,
+    `deptcode` String,
+    `deptname` String,
+    `fullname` String,
+    `zf_3in1_server` String,
+    `sn` String,
+    `master` String,
+    `unitid` String,
+    `unitname` String,
+    `dept_name` String,
+    `action_type` String,
+    `vioinfo` String,
+    `operuser` String,
+    `dev_id` String,
+    `viotype` String,
+    `dev_info` String,
+    `emp_name` String,
+    `content` String,
+    `login_ip` String,
+    `type` String,
+    `dev_ip` String,
+    `host_name` String,
+    `com_code` String,
+    `json_mess` Nullable(String) TTL soc_date + toIntervalDay(1),
+    `medium_type` String
+)
+ENGINE = ReplacingMergeTree
+PARTITION BY toYYYYMMDD(entry_stamp)
+PRIMARY KEY soc_uuid
+ORDER BY (soc_uuid, zf_3in1_server, host_ip, entry_stamp)
+TTL soc_date + toIntervalDay(180)
+SETTINGS index_granularity = 8192, allow_nullable_key = 1

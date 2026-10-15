@@ -1,0 +1,35 @@
+# 测试环境配置（示例，按需修改）
+base_url: "http://staging-api.example.com"
+login_path: "/auth/login"        # 登录接口路径（AuthManager 使用，默认 /auth/login）
+
+clientid: "your_staging_clientid"
+encrypt-key: "your_staging_encrypt_key"
+Content-Type: text/plain
+payload: "your_staging_payload"
+
+timeout: [5, 10]
+token_expire_seconds: 1800
+token_refresh_buffer: 60
+
+# 用例变量：用例 YAML 的 payload/path 中可用 ${NAME} 引用（按本环境实际 ID 填写）
+case_vars:
+  DEPT_ID: "100"
+  GROUP_ID: "your_staging_group_id"
+
+# 数据库配置（可选；database 可选，跨库查询见 dev.yaml 注释）
+databases:
+  mysql:
+    type: mysql
+    host: "staging-db.example.com"
+    port: 3306
+    user: "root"
+    password: "${MYSQL_PASSWORD}"
+    database: "your_db"
+    charset: "utf8mb4"
+  # ck:                            # 业务数据（按需启用）
+  #   type: clickhouse
+  #   host: "staging-ck.example.com"
+  #   port: 8123
+  #   username: "default"
+  #   password: "${CK_PASSWORD}"
+  #   database: "your_db"

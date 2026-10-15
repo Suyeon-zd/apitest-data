@@ -1,0 +1,39 @@
+CREATE TABLE DWD.sjzl_asset_mail_virus
+(
+    `soc_uuid` String DEFAULT generateUUIDv4(),
+    `soc_date` Date DEFAULT CAST(now(), 'Date'),
+    `soc_date_time` DateTime DEFAULT now(),
+    `soc_date_time_timestamp` UInt64 DEFAULT toUnixTimestamp(toDateTime64(soc_date_time, 3)) * 1000 COMMENT '创建时间时间戳(毫秒)',
+    `title` String COMMENT '邮件主题',
+    `action` String COMMENT '邮件发送病毒检测标志，NEW_VIRUS或ACC_VIRUS',
+    `user_id` String COMMENT '发件人ID',
+    `ip_address` String COMMENT '发件人IP',
+    `mail_to` String COMMENT '收件人ID',
+    `action_time` String COMMENT '发送时间',
+    `file_name` String COMMENT '附件名称',
+    `virus_file_name` String COMMENT '带毒附件名称',
+    `mail_senslevel` String COMMENT '邮件密级',
+    `cc` String COMMENT '抄送人ID',
+    `file_senslevel` String COMMENT '附件密级',
+    `virus_name` String COMMENT '病毒名称',
+    `operator_id` String COMMENT '操作人ID',
+    `box_type` String COMMENT '邮箱类型',
+    `org_name` String COMMENT '发件人部门名称',
+    `com_code` String,
+    `json_mess` String,
+    `insert_time` DateTime DEFAULT now(),
+    `dev_ip` String,
+    `user` String COMMENT '发件人',
+    `addressee` String COMMENT '收件人',
+    `mail_log_type` Nullable(String) DEFAULT NULL COMMENT '邮件日志类型，区分邮件病毒日志和邮件传输日志',
+    `report_time` DateTime DEFAULT now() COMMENT '日志上报时间',
+    `report_time_timestamp` UInt64 DEFAULT toUnixTimestamp(toDateTime64(report_time, 3)) * 1000 COMMENT '日志上报时间(毫秒)',
+    `orig_log` String COMMENT '原始日志'
+)
+ENGINE = ReplacingMergeTree
+PARTITION BY toYYYYMMDD(soc_date)
+PRIMARY KEY soc_uuid
+ORDER BY (soc_uuid, soc_date, action)
+TTL soc_date + toIntervalDay(180)
+SETTINGS index_granularity = 8192
+COMMENT '邮件病毒'

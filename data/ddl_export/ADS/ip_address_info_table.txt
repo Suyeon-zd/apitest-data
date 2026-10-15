@@ -1,0 +1,15 @@
+CREATE TABLE ADS.ip_address_info_table
+(
+    `ip_range_start` String,
+    `ip_range_end` String,
+    `subnet_mask` String,
+    `organization` String,
+    `com_code` String,
+    `org_address` String,
+    `org_address_code` String COMMENT '地理位置邮政编码',
+    `id` String DEFAULT generateUUIDv4(),
+    `status` UInt8 DEFAULT 1
+)
+ENGINE = MergeTree
+ORDER BY id
+SETTINGS index_granularity = 8192

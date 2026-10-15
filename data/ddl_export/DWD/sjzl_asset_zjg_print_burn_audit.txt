@@ -1,0 +1,62 @@
+CREATE TABLE DWD.sjzl_asset_zjg_print_burn_audit
+(
+    `soc_uuid` String DEFAULT generateUUIDv4(),
+    `soc_date` Date DEFAULT CAST(now(), 'Date'),
+    `company` String COMMENT '厂商名称',
+    `product` String COMMENT '产品名称',
+    `log_type` String COMMENT '日志类型',
+    `print_user` String COMMENT '打印账号',
+    `host_ip` String COMMENT 'IP',
+    `host_mac` String COMMENT 'MAC',
+    `host_name` String COMMENT '终端／服务器名称',
+    `user_name` String COMMENT '贞任人',
+    `department` String COMMENT '贡任部门',
+    `department_id` String COMMENT '贡任部门',
+    `full_department` String COMMENT '部门全称',
+    `desc` String COMMENT '描述信息',
+    `unit` String COMMENT '单位名称',
+    `log_time` String COMMENT '日志时间',
+    `host_sec_level` String COMMENT '终端／服务器密级',
+    `printer_name` String COMMENT '打印机名称',
+    `printer_type` String COMMENT '打印机类型',
+    `print_copy` String COMMENT '打印文件数量',
+    `print_page` String COMMENT '打印文件页数',
+    `file_hash` String COMMENT '文件哈希',
+    `file_name` String COMMENT '文件名',
+    `file_sec_level` String COMMENT '文件密级',
+    `file_type` String COMMENT '打印文件类型',
+    `file_size` String COMMENT '打印文件大小',
+    `print_job_id` String COMMENT '打印任务编号',
+    `print_time` String COMMENT '打印时间',
+    `result` String COMMENT '结果',
+    `burn_id` String COMMENT '刻录机编号',
+    `burn_user` String COMMENT '刻录机用户',
+    `burn_type` String COMMENT '刻示设备类型',
+    `burn_name` String COMMENT '刻录机名称',
+    `burn_file_list` String COMMENT '刻录的文件信息列表',
+    `burn_time` String COMMENT '刻录时间',
+    `burn_count` String COMMENT '刻录文件数量',
+    `burn_size` String COMMENT '刻录大小',
+    `burn_cd_type` String COMMENT '刻录光盘的属性',
+    `host_id` String COMMENT '终端编号',
+    `action_type` String COMMENT '橾作类型',
+    `account` String COMMENT '橾作账号',
+    `account_role` String COMMENT '操作账号角色',
+    `com_code` String,
+    `dev_ip` String,
+    `log_event` String COMMENT '日志事件',
+    `json_mess` String COMMENT '日志原文',
+    `is_host` Int32,
+    `soc_date_time` DateTime DEFAULT now() COMMENT '日期时间',
+    `soc_date_time_timestamp` UInt64 DEFAULT toUnixTimestamp(toDateTime64(soc_date_time, 3)) * 1000 COMMENT '日期时间-时间戳',
+    `report_time` DateTime DEFAULT now() COMMENT '日志时间',
+    `report_time_timestamp` UInt64 DEFAULT toUnixTimestamp(toDateTime64(report_time, 3)) * 1000 COMMENT '日志时间-时间戳',
+    `orig_log` Nullable(String) DEFAULT NULL COMMENT '原始日志'
+)
+ENGINE = ReplacingMergeTree
+PARTITION BY toYYYYMMDD(soc_date)
+PRIMARY KEY soc_uuid
+ORDER BY (soc_uuid, soc_date, log_type, host_ip)
+TTL soc_date + toIntervalDay(180)
+SETTINGS index_granularity = 8192
+COMMENT '打印刻录监控与审计系统'

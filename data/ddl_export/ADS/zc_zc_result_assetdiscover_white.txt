@@ -1,0 +1,28 @@
+CREATE TABLE ADS.zc_zc_result_assetdiscover_white
+(
+    `white_id` Int64 COMMENT '白名单ID',
+    `com_code` String COMMENT '所属单位编码',
+    `white_type` UInt8 DEFAULT 1 COMMENT '1-资产发现、2-吉大正元违规登陆、3-网络流量白名单',
+    `ip_type` Enum8('single' = 1, 'range' = 2) COMMENT 'IP类型',
+    `ip` String COMMENT 'IP（单个IP）',
+    `ip_num` UInt32 COMMENT '单个IP的整数值',
+    `ip_start` String COMMENT 'IP段起始',
+    `ip_start_num` UInt32 COMMENT 'IP段起始整数值',
+    `ip_end` String COMMENT 'IP段结束',
+    `ip_end_num` UInt32 COMMENT 'IP段结束整数值',
+    `ip_range_start_num` UInt32 ALIAS if(ip_type = 'single', ip_num, ip_start_num),
+    `ip_range_end_num` UInt32 ALIAS if(ip_type = 'single', ip_num, ip_end_num),
+    `use_user` Nullable(String) COMMENT '责任人',
+    `ip_card_no` Nullable(String) COMMENT '主机IP对应的身份证编号，多个身份证编号以逗号分割',
+    `remarks` Nullable(String) COMMENT '备注',
+    `create_by` Nullable(String) COMMENT '创建者',
+    `create_time` DateTime DEFAULT now() COMMENT '创建时间',
+    `file_name` Nullable(String) COMMENT '附件名称',
+    `file_path` Nullable(String) COMMENT '附件路径',
+    `issue_com_codes` String COMMENT '下发单位编码'
+)
+ENGINE = ReplacingMergeTree
+PRIMARY KEY (white_type, com_code, ip, ip_start, ip_end)
+ORDER BY (white_type, com_code, ip, ip_start, ip_end)
+SETTINGS index_granularity = 8192
+COMMENT '资产发现白名单'

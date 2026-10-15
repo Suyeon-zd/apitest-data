@@ -1,0 +1,54 @@
+CREATE TABLE ODS.sys_ahjh_sjkaqwg
+(
+    `soc_uuid` String DEFAULT generateUUIDv4(),
+    `soc_date` Date DEFAULT CAST(now(), 'Date'),
+    `com_code` String,
+    `dev_ip` String COMMENT '设备ip',
+    `date` DateTime,
+    `cef` String,
+    `occurrence_time` DateTime COMMENT '发生时间',
+    `server_ip` String COMMENT '服务器IP',
+    `server_port` String COMMENT '服务器端口',
+    `database_name` String COMMENT '数据库名',
+    `database_instance_name` String COMMENT '数据库实例名',
+    `database_version` String COMMENT '数据库版本',
+    `client_ip` String COMMENT '客户端IP',
+    `client_port` String COMMENT '客户端端口',
+    `client_mac` String COMMENT '客户端MAC',
+    `database_user` String COMMENT '数据库用户',
+    `os_user` String COMMENT '操作系统用户',
+    `client_tool` String COMMENT '客户端工具',
+    `risk_type` String COMMENT '风险类型',
+    `risk_level` String COMMENT '风险级别',
+    `risk_type_level` String COMMENT '风险类型[级别]',
+    `engine_action` String COMMENT '引擎动作',
+    `rule_name` String COMMENT '规则名称',
+    `sql` String COMMENT 'SQL报文',
+    `protected_database` String COMMENT '被保护数据库',
+    `user_name` String COMMENT '用户',
+    `user_ip` String COMMENT '用户ip',
+    `function` String COMMENT '功能',
+    `action` String COMMENT '动作',
+    `before_updating` String COMMENT '更新前',
+    `after_updating` String COMMENT '更新后',
+    `describe` String COMMENT '描述',
+    `result` String COMMENT '结果',
+    `action_report` String COMMENT '执行结果',
+    `affect_rows` String COMMENT '影响行数',
+    `application_user` String COMMENT '应用用户',
+    `client_os_user` String COMMENT '客户端操作系统用户',
+    `access_object` String COMMENT '访问对象',
+    `response_time` String COMMENT '响应时间',
+    `operation_type` String COMMENT '操作类型',
+    `identifier` String COMMENT '标识ip',
+    `log_source_ip` String COMMENT '源ip',
+    `reporting_time` String COMMENT '解析时间',
+    `flag` UInt8 DEFAULT 1,
+    `json_mess` Nullable(String) TTL soc_date + toIntervalDay(1)
+)
+ENGINE = MergeTree
+PARTITION BY toYYYYMMDD(date)
+PRIMARY KEY soc_uuid
+ORDER BY (soc_uuid, date)
+TTL soc_date + toIntervalDay(180)
+SETTINGS index_granularity = 8192

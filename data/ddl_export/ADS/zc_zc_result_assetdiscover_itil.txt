@@ -1,0 +1,21 @@
+CREATE TABLE ADS.zc_zc_result_assetdiscover_itil
+(
+    `id` UUID DEFAULT generateUUIDv4(),
+    `ip` String,
+    `unit` String,
+    `create_time` DateTime64(3),
+    `source` String,
+    `com_code` String,
+    `vulnerability_scanning_task_name` String,
+    `vulnerability_scanning_port` String,
+    `vulnerability_scanning_protocol` String,
+    `traffic_pointer_protocol` String,
+    `traffic_pointer_src_ip` String,
+    `traffic_pointer_dst_ip` String,
+    `traffic_pointer_src_port` String,
+    `traffic_pointer_dst_port` String,
+    `intip` UInt32
+)
+ENGINE = MergeTree
+ORDER BY (id, ip, unit, create_time, source, com_code, vulnerability_scanning_task_name, vulnerability_scanning_port, vulnerability_scanning_protocol, traffic_pointer_protocol, traffic_pointer_src_ip, traffic_pointer_dst_ip, traffic_pointer_src_port, traffic_pointer_dst_port)
+SETTINGS index_granularity = 8192

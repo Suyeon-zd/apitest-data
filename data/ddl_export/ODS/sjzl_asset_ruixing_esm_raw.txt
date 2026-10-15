@@ -1,0 +1,42 @@
+CREATE TABLE ODS.sjzl_asset_ruixing_esm_raw
+(
+    `soc_uuid` String DEFAULT generateUUIDv4(),
+    `soc_date` Date DEFAULT CAST(now(), 'Date'),
+    `soc_date_time` DateTime DEFAULT now(),
+    `soc_date_time_timestamp` UInt64 DEFAULT toUnixTimestamp(toDateTime64(soc_date_time, 3)) * 1000 COMMENT '创建时间时间戳(毫秒)',
+    `com_code` String,
+    `key1` String,
+    `taskname` String,
+    `virusname` String,
+    `filepath` String,
+    `id` String,
+    `state` String,
+    `ip` String,
+    `threatmethod` String,
+    `virusclass` String,
+    `leix` String,
+    `time` DateTime,
+    `table` String,
+    `timestamp` String,
+    `dev_ip` String,
+    `flag` UInt8 DEFAULT 1,
+    `uuid` UUID DEFAULT generateUUIDv4(),
+    `json_mess` Nullable(String) TTL soc_date + toIntervalDay(1),
+    `user_account` String,
+    `recep_time` UInt16,
+    `org_address_code` String,
+    `virus_type` String,
+    `log_desc` String COMMENT '日志描述',
+    `log_result` String COMMENT '日志结果',
+    `detected_viruses_number` String COMMENT '发现病毒数',
+    `scan_number` String COMMENT '扫描数目',
+    `duration_time` String COMMENT '持续时间',
+    `processed_virus_count` String COMMENT '处理病毒数目',
+    `start_time` String COMMENT '开始时间'
+)
+ENGINE = MergeTree
+PARTITION BY toYYYYMMDD(time)
+PRIMARY KEY soc_uuid
+ORDER BY (soc_uuid, time)
+TTL soc_date + toIntervalDay(180)
+SETTINGS index_granularity = 8192

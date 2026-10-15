@@ -1,0 +1,17 @@
+CREATE TABLE ADS.sjzl_asset_secyuan_sysinfo
+(
+    `name` String COMMENT '名称',
+    `model` String COMMENT '型号',
+    `classification_level` String COMMENT '密级',
+    `ip_address` String COMMENT 'IP地址',
+    `manufacturer` String COMMENT '生产厂家',
+    `usage` String COMMENT '用途',
+    `status` String COMMENT '使用情况',
+    `reporting_time` DateTime,
+    `ips` String,
+    `id` UUID DEFAULT generateUUIDv4(),
+    `yuan_level` Int32 DEFAULT 0
+)
+ENGINE = MergeTree
+ORDER BY id
+SETTINGS index_granularity = 8192

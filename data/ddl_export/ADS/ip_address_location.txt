@@ -1,0 +1,16 @@
+CREATE TABLE ADS.ip_address_location
+(
+    `loc_id` Int64 COMMENT 'ID',
+    `com_code` String COMMENT '单位编码',
+    `sec_num` String COMMENT '保密编号',
+    `ips` String COMMENT '资产底账IP',
+    `org_name` Nullable(String) COMMENT '单位名称',
+    `org_address` Nullable(String) COMMENT '单位地址',
+    `update_time` Nullable(DateTime) DEFAULT NULL COMMENT '操作时间',
+    `type` String
+)
+ENGINE = MergeTree
+PRIMARY KEY (com_code, sec_num, ips)
+ORDER BY (com_code, sec_num, ips)
+SETTINGS index_granularity = 8192
+COMMENT '资产地址位置表'

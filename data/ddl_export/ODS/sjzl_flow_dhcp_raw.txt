@@ -1,0 +1,31 @@
+CREATE TABLE ODS.sjzl_flow_dhcp_raw
+(
+    `event_source` String,
+    `timestamp` UInt64,
+    `commid` String,
+    `interface` String,
+    `ts` UInt64,
+    `proto` String,
+    `collect_time` UInt64,
+    `uuid` String,
+    `sensor_name` String,
+    `sensor_ip` String,
+    `platform` String,
+    `src_ip` String,
+    `src_port` UInt32,
+    `dst_ip` String,
+    `dst_port` UInt32,
+    `sensor_id` String,
+    `interface_id` String,
+    `other_id` String,
+    `cluster_id` String,
+    `uid` String,
+    `mac` String,
+    `host_name` String,
+    `assigned_id` String,
+    `lease_time` String,
+    `trans_id` String
+)
+ENGINE = MergeTree
+ORDER BY timestamp
+SETTINGS index_granularity = 8192

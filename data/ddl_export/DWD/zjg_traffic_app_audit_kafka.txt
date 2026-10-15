@@ -1,0 +1,14 @@
+CREATE TABLE DWD.zjg_traffic_app_audit_kafka
+(
+    `app_middleware` Nullable(String),
+    `app_type` UInt8,
+    `data_type` UInt8,
+    `device_id` String,
+    `extended_fields` Nullable(String),
+    `ip` Nullable(String),
+    `middleware_version` Nullable(String),
+    `port` UInt32,
+    `updated_at` UInt64
+)
+ENGINE = Kafka
+SETTINGS kafka_broker_list = '10.148.242.205:9092', kafka_topic_list = 'flow_app_audit', kafka_group_name = 'flow_app_audit_consumer_group', kafka_format = 'JSONEachRow'

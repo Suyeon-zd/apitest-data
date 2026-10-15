@@ -1,0 +1,33 @@
+CREATE TABLE ADS.vul_task_result_max
+(
+    `id` String DEFAULT generateUUIDv4() COMMENT '主键ID',
+    `dev_ip` String,
+    `dev_ip_com_code` String,
+    `tenant_id` String DEFAULT '' COMMENT '租户ID',
+    `host_ip` String COMMENT '存在漏洞的IP地址',
+    `host_ip_com_code` String COMMENT '存在漏洞的IP地址对应的单位编码',
+    `host_ip_com_name` String COMMENT '所在单位',
+    `host_ip_user_name` String COMMENT '资产责任人',
+    `host_ip_dev_type` String COMMENT '资产类型',
+    `host_ip_purpose` String COMMENT '资产用途',
+    `vul_id` Int32 COMMENT '漏洞ID',
+    `cve_id` String COMMENT '漏洞对应的CVE ID',
+    `risk_name` String COMMENT '漏洞名称',
+    `threat_category` String COMMENT '威胁类型',
+    `protocol` String COMMENT '协议',
+    `service` String COMMENT '服务',
+    `port` Int32 COMMENT '端口',
+    `level` String COMMENT '低危、中危、高危',
+    `first_check_time` DateTime COMMENT '首次检出时间，格式为：2026-12-26 12:12:12',
+    `last_check_time` DateTime COMMENT '最后检出时间，格式为：2026-12-26 12:12:12',
+    `check_num` Int32 COMMENT '发现次数',
+    `repeat_num` Int32 COMMENT '复现次数',
+    `deal_status` String COMMENT '处置状态（0 待确认 1 已确认 2 已忽略）',
+    `deal_date_time` DateTime COMMENT '处置时间，格式为：2026-12-26 12:12:12',
+    `ignore_description` String COMMENT '忽略描述',
+    `vul_source` String COMMENT '漏洞来源'
+)
+ENGINE = ReplacingMergeTree
+PARTITION BY dev_ip
+ORDER BY (last_check_time, host_ip, risk_name)
+SETTINGS index_granularity = 8192

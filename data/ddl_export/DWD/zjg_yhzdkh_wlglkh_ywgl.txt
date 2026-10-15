@@ -1,0 +1,20 @@
+CREATE TABLE DWD.zjg_yhzdkh_wlglkh_ywgl
+(
+    `id` String DEFAULT generateUUIDv4(),
+    `opt_type` String COMMENT '用户终端刻画、运维终端刻画、服务器刻画',
+    `com_code` String,
+    `sec_num` String COMMENT 'BM编号',
+    `ip` String,
+    `mac_mid` String,
+    `os_login_time` Date,
+    `operation_ip_range_mid` String,
+    `operation_object_type_mid` String,
+    `operation_account_range_mid` String,
+    `operation_time_range_mid` String,
+    `operation_protocol_ports_mid` String,
+    `create_time` DateTime DEFAULT now() COMMENT '创建时间'
+)
+ENGINE = ReplacingMergeTree(create_time)
+PARTITION BY toYYYYMM(os_login_time)
+ORDER BY (opt_type, com_code, sec_num, ip, os_login_time)
+SETTINGS index_granularity = 8192

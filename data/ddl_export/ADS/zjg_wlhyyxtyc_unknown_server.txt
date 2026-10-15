@@ -1,0 +1,26 @@
+CREATE TABLE ADS.zjg_wlhyyxtyc_unknown_server
+(
+    `id` String DEFAULT generateUUIDv4(),
+    `app_name` String COMMENT '.应用系统名称',
+    `app_ip` String,
+    `app_ip_com_code` String,
+    `app_ip_sec_num` String COMMENT 'BM编号',
+    `app_user` String COMMENT '3.应用系统责任人',
+    `department` String COMMENT '4.应用系统所属部门',
+    `app_security_level` String COMMENT '5.应用系统密级',
+    `destination_server_ip` String COMMENT '6.目的服务器IP地址',
+    `destination_server_ip_com_code` String,
+    `destination_server_ip_sec_num` String COMMENT 'BM编号',
+    `destination_server_app_list_mid` String COMMENT '7.目的服务器安装的应用系统列表',
+    `destination_server_user` String COMMENT '8.目的服务器责任人',
+    `destination_server_department` String COMMENT '9.目的服务器所属部门',
+    `destination_server_security_level` String COMMENT '10.目的服务器密级',
+    `visit_time` DateTime COMMENT '用户访问时间-yyyy-MM-dd HH:mm:ss格式',
+    `use_protocol` String COMMENT '访问协议',
+    `use_port` String COMMENT '访问端口'
+)
+ENGINE = MergeTree
+PARTITION BY toYYYYMMDD(visit_time)
+ORDER BY (app_ip_com_code, app_ip, app_ip_sec_num, visit_time)
+SETTINGS index_granularity = 8192
+COMMENT '网络和应用系统异常类监管事件-应用系统与超范围服务器通信'

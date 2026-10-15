@@ -1,0 +1,47 @@
+CREATE TABLE ODS.sjzl_asset_venustech_jumpserver
+(
+    `soc_uuid` String DEFAULT generateUUIDv4(),
+    `soc_date` Date DEFAULT CAST(now(), 'Date'),
+    `soc_date_time` DateTime DEFAULT now(),
+    `soc_date_time_timestamp` UInt64 DEFAULT toUnixTimestamp(toDateTime64(soc_date_time, 3)) * 1000 COMMENT '创建时间时间戳(毫秒)',
+    `dev_ipv6` String COMMENT '堡垒机设备IPv6地址',
+    `login_type` String COMMENT '登录方式',
+    `user_name` String COMMENT '登录用户名',
+    `approvers` String COMMENT '审批人字符串',
+    `command_rule_id` Int32 COMMENT '触发的命令规则编号',
+    `user_port` Int32 COMMENT '登录端口',
+    `dev_mac` String COMMENT '堡垒机设备MAC地址',
+    `user_addr` String COMMENT '登录地址',
+    `log_type` String COMMENT '登录方式',
+    `action_id` String COMMENT '审计动作',
+    `login_action` String COMMENT '登录/登出动作',
+    `resource_addr` String COMMENT '目的资源地址',
+    `dev_ipv4` String COMMENT '堡垒机设备IPv4地址',
+    `approval_log_id` String COMMENT '命令审批日志编号字符串',
+    `tool_name` String COMMENT '运维工具名',
+    `dev_name` String COMMENT '堡垒机设备名称',
+    `end_reason` String COMMENT '连接结束原因',
+    `session_id` String COMMENT '资产登录会话ID',
+    `operate_direct` String COMMENT '数据方向 1：上行,2：下行',
+    `version` Int32 COMMENT '数据格式版本',
+    `log_time` DateTime COMMENT '日志产生时间',
+    `command_id` String COMMENT '资产登录会话ID',
+    `resource_port` Int32 COMMENT '目的资源端口',
+    `resource_account` String COMMENT '目的资源账号名称',
+    `user_id` Int32 COMMENT '主账号id',
+    `access_id` String COMMENT '资产访问ID',
+    `resource_account_id` Int32 COMMENT '从账号id',
+    `resource_account_type` String COMMENT '从账号类型',
+    `resource_name` String COMMENT '目的资源名称',
+    `com_code` String COMMENT '单位编码',
+    `json_mess` String COMMENT '原始日志JSON',
+    `command` String COMMENT '操作命令',
+    `log_event` String COMMENT '日志事件',
+    `log_result` String COMMENT '日志结果'
+)
+ENGINE = MergeTree
+PARTITION BY toYYYYMMDD(log_time)
+ORDER BY (soc_uuid, dev_ipv4, log_time)
+TTL log_time + toIntervalDay(180)
+SETTINGS index_granularity = 8192
+COMMENT '启明星辰 堡垒机日志表'

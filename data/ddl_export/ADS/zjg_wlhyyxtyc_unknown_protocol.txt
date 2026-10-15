@@ -1,0 +1,24 @@
+CREATE TABLE ADS.zjg_wlhyyxtyc_unknown_protocol
+(
+    `id` String DEFAULT generateUUIDv4(),
+    `src_ip_sec_num` String COMMENT 'BM编号',
+    `dst_ip` String COMMENT '传输陌生协议的目的设备或应用系统P地址',
+    `dst_ip_com_code` String,
+    `dst_ip_sec_num` String COMMENT 'BM编号',
+    `src_user` String COMMENT '源设备责任人',
+    `dst_user` String COMMENT '目的设备或应用系统的责任人',
+    `src_department` String COMMENT '源设备的所属部门',
+    `dst_department` String COMMENT '目的设备或应用系统的所属部门',
+    `src_security_level` String COMMENT '直接访问数据库系统的用户终端密级',
+    `dst_security_level` String COMMENT '直接访问数据库系统的用户终端密级',
+    `use_protocol` String COMMENT '访问协议',
+    `use_port` String COMMENT '访问端口',
+    `visit_time` DateTime COMMENT '用户访问时间-yyyy-MM-dd HH:mm:ss格式',
+    `src_ip` String COMMENT '传输陌生协议的源设备IP地址',
+    `src_ip_com_code` String
+)
+ENGINE = MergeTree
+PARTITION BY toYYYYMMDD(visit_time)
+ORDER BY (dst_ip_com_code, dst_ip, dst_ip_sec_num, visit_time)
+SETTINGS index_granularity = 8192
+COMMENT '网络和应用系统异常类监管事件-网络中存在陌生协议'

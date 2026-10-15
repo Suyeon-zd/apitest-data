@@ -1,0 +1,15 @@
+CREATE TABLE ODS.resource_ledger_virtual
+(
+    `virtual_id` Int64 COMMENT '虚拟ID',
+    `com_code` String COMMENT '单位编码',
+    `sec_num` String COMMENT '保密编号',
+    `ips` String COMMENT '资产底账IP',
+    `virtual_ip` String COMMENT '虚拟IP',
+    `remarks` Nullable(String) COMMENT '备注',
+    `update_time` Nullable(DateTime) DEFAULT NULL COMMENT '更新时间'
+)
+ENGINE = ReplacingMergeTree
+PRIMARY KEY (com_code, sec_num, ips, virtual_ip)
+ORDER BY (com_code, sec_num, ips, virtual_ip)
+SETTINGS index_granularity = 8192
+COMMENT '资产底账虚拟IP表'

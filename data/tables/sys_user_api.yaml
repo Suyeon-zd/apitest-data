@@ -1,0 +1,81 @@
+# data/tables/sys_user_api.yaml
+# 通过「用户新增接口」批量构造用户（target: api）
+#
+# 背景：前端新增用户会级联写入 sys_user 及多张关联表，不能直接插 sys_user 造数，
+#       因此改为逐行调用 POST /system/user，让后端完成全部关联写入。
+#
+# 用法：
+#   python -m data.cli --config data/tables/sys_user_api.yaml --dry-run          # 离线预览请求体
+#   python -m data.cli --config data/tables/sys_user_api.yaml --count 100        # 实际调接口造 100 个用户
+#   python -m data.cli --config data/tables/sys_user_api.yaml --csv users.csv    # 导出请求体为 CSV（不调接口）
+#
+# 说明：fields 顺序即请求 JSON 的键序，与 Postman body 完全一致；
+#       type 决定默认生成类型（string/int/array），具体取值由 rules 覆盖。
+
+target: api                 # 输出目标：api=调业务接口（默认 db=直插库）
+name: sys_user              # 仅用于日志/预览标识
+
+api:
+  method: POST
+  path: /system/user        # 与 config/<env>.yaml 的 base_url 拼接（base_url 已含 /dev-api）
+
+count: 100
+seed: 20260914              # 固定随机种子，同样参数产出可复现（身份证等随机字段）
+stop_on_error: false        # 单行失败继续发送，最后统一汇总成功/失败
+
+# ---------- 请求体字段（16 个，顺序即 JSON 键序） ----------
+fields:
+  - {name: idCard, type: string}                 # 身份证号
+  - {name: deptId, type: int}                    # 部门 ID（数字）
+  - {name: userName, type: string}               # 登录账号
+  - {name: nickName, type: string}               # 昵称
+  - {name: password, type: string}               # 初始密码
+  - {name: dataEventType, type: string}          # 数据事件类型（固定空串）
+  - {name: dataEventTypeArr, type: array}        # 数据事件类型数组（固定空数组）
+  - {name: status, type: string}                 # 状态："1" 正常
+  - {name: remark, type: string}                 # 备注（固定空串）
+  - {name: roleIds, type: array}                 # 角色 ID 数组（固定空数组）
+  - {name: userLevel, type: int}                 # 用户等级（数字 3）
+  - {name: characterAttribute, type: array}      # 角色属性数组（固定空数组）
+  - {name: isPrivilegeEscalation, type: string}  # 是否提权："0" 否
+  - {name: ipLoginRange, type: string}           # 登录 IP 范围（固定空串）
+  - {name: dataIpRange, type: string}            # 数据 IP 范围（固定空串）
+  - {name: userAttr, type: string}               # 用户扩展属性（固定空串）
+
+# ---------- 取值规则 ----------
+rules:
+  # 合法 18 位身份证（GB 11643 校验位）：固定 341111 地区码 + 随机 18~60 岁生日 + 顺序码 + 校验码
+  idCard:
+    id_card:
+      area: "341111"
+      min_age: 18
+      max_age: 60
+  deptId:
+    fixed: 100
+  # user000001、user000002 ...（6 位补零顺序号，天然唯一）
+  userName:
+    template: "user{seq:6}"
+  # 昵称与账号保持一致
+  nickName:
+    ref: userName
+  password:
+    fixed: "a123456789A%"
+  status:
+    fixed: "0"
+  userLevel:
+    fixed: 3
+  isPrivilegeEscalation:
+    fixed: "0"
+  # 以下字符串字段固定空串（与 Postman body 一致，注意不是 null）
+  dataEventType: {fixed: ""}
+  remark: {fixed: ""}
+  ipLoginRange: {fixed: ""}
+  dataIpRange: {fixed: ""}
+  userAttr: {fixed: ""}
+  # 以下数组字段固定空数组（JSON 序列化后保持 []，不会变成 null）
+  dataEventTypeArr: {fixed: []}
+  roleIds: {fixed: []}
+  characterAttribute: {fixed: []}
+
+# 账号、身份证必须全局唯一（撞车自动重新生成）
+unique: [userName, idCard]

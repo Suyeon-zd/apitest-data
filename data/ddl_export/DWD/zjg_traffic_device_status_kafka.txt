@@ -1,0 +1,18 @@
+CREATE TABLE DWD.zjg_traffic_device_status_kafka
+(
+    `data_type` UInt8,
+    `device_bios_version` String,
+    `device_cpu_core` UInt8,
+    `device_cpu_usage` UInt8,
+    `device_id` String,
+    `device_soft_version` String,
+    `device_status` String,
+    `device_sys_version` String,
+    `interface_status` String,
+    `device_mem_usage` UInt8,
+    `device_mem_size` UInt8,
+    `monitor_ip` String,
+    `record_time` UInt64
+)
+ENGINE = Kafka
+SETTINGS kafka_broker_list = '10.148.242.205:9092', kafka_topic_list = 'flow_device_status', kafka_group_name = 'flow_device_status_consumer_group', kafka_format = 'JSONEachRow'

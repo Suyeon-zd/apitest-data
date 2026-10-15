@@ -1,0 +1,30 @@
+CREATE TABLE ADS.zjg_merge_alarm
+(
+    `id` String DEFAULT generateUUIDv4(),
+    `event_name` String,
+    `asset_event_type` UInt8 COMMENT '事件类型',
+    `event_level` String COMMENT '事件级别',
+    `is_supervise` String DEFAULT '0' COMMENT '是否督促1是0否',
+    `supervise_description` String COMMENT '督促原因',
+    `disposal_time` Int32 DEFAULT 10 COMMENT '处置时限',
+    `disposal_status` String COMMENT '处置状态',
+    `event_create_time` DateTime COMMENT '事件发生时间,例如：2025-06-08 12:12:12',
+    `ids` String COMMENT '合并前的事件id拼接，用逗号分隔',
+    `workflow_id` String COMMENT 'ITIL流程ID',
+    `create_time` DateTime DEFAULT now(),
+    `create_dept` Nullable(UInt64) COMMENT '创建部门',
+    `create_by` Nullable(UInt64) COMMENT '创建者',
+    `update_by` Nullable(UInt64) COMMENT '更新者',
+    `update_time` Nullable(DateTime) COMMENT '更新时间',
+    `ip` String,
+    `com_code` String,
+    `com_name` String,
+    `com_asset_person` String DEFAULT '' COMMENT '责任人',
+    `work_no` Nullable(String) DEFAULT NULL COMMENT '工单编号',
+    `work_status` Nullable(String) DEFAULT NULL COMMENT '工单状态'
+)
+ENGINE = ReplacingMergeTree
+PRIMARY KEY id
+ORDER BY (id, event_create_time)
+SETTINGS index_granularity = 8192
+COMMENT '告警合并表'

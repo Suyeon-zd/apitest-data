@@ -1,0 +1,17 @@
+CREATE TABLE DWD.zjg_yhzdkh_security_disk_info
+(
+    `id` String DEFAULT generateUUIDv4(),
+    `opt_type` String COMMENT '用户终端刻画、运维终端刻画、服务器刻画',
+    `com_code` String,
+    `sec_num` String COMMENT 'BM编号',
+    `ip` String,
+    `mac_mid` String,
+    `os_login_time` Date,
+    `udisk_counts_mid` UInt32,
+    `udisk_usage_times_mid` String,
+    `create_time` DateTime DEFAULT now()
+)
+ENGINE = ReplacingMergeTree(create_time)
+PARTITION BY toYYYYMM(os_login_time)
+ORDER BY (opt_type, com_code, sec_num, ip, os_login_time)
+SETTINGS index_granularity = 8192

@@ -1,0 +1,25 @@
+CREATE TABLE ADS.zjg_wlhyyxtyc_user_access_protocol
+(
+    `id` String DEFAULT generateUUIDv4(),
+    `access_opt` UInt8 COMMENT '1-用户远程登录其他用户终端操作系统、2-用户访问其他用户终端开启的文件服务、3-用户远程登录服务器操作系统',
+    `terminal_ip` String COMMENT '访问文件服务的源终端IP地址',
+    `terminal_ip_com_code` String,
+    `terminal_ip_sec_num` String COMMENT 'BM编号',
+    `user_name` String COMMENT '访问文件服务的源终端责任人',
+    `department` String COMMENT '访问文件服务的源终端所属部门',
+    `terminal_security_level` String COMMENT '访问文件服务的源终端密级',
+    `destination_point_ip` String COMMENT '访问文件服务的目的端IP地址',
+    `destination_point_ip_com_code` String,
+    `destination_point_ip_sec_num` String COMMENT 'BM编号',
+    `destination_point_user` String COMMENT '访问文件服务的目的端责任人',
+    `destination_point_department` String COMMENT '访问文件服务的目的端所属部门',
+    `destination_point_security_level` String COMMENT '访问文件服务的目的端密级',
+    `action_time` DateTime COMMENT '访问文件服务的登录时间-yyyy-MM-dd HH:mm:ss格式',
+    `use_protocol` String COMMENT '访问文件服务的登录协议SSH邓',
+    `use_port` String COMMENT '访问文件服务端口'
+)
+ENGINE = MergeTree
+PARTITION BY toYYYYMMDD(action_time)
+ORDER BY (destination_point_ip_com_code, destination_point_ip_sec_num, destination_point_ip, action_time)
+SETTINGS index_granularity = 8192
+COMMENT '网络和应用系统异常类监管事件-用户远程登录其他用户终端操作系统、用户访问其他用户终端开启的文件服务、用户远程登录服务器操作系统'

@@ -1,0 +1,21 @@
+CREATE TABLE ADS.login_portal_asset
+(
+    `id` String DEFAULT generateUUIDv4(),
+    `login_portal_url` Nullable(String) DEFAULT NULL COMMENT '登录入口地址',
+    `login_portal_name` Nullable(String) DEFAULT NULL COMMENT '登录入口名称',
+    `login_portal_type` Nullable(String) DEFAULT NULL COMMENT '登录入口类型',
+    `purpose` Nullable(String) DEFAULT NULL COMMENT '用途',
+    `com_name` Nullable(String) DEFAULT NULL COMMENT '单位名称',
+    `com_code` Nullable(String) DEFAULT NULL COMMENT '单位编码',
+    `user_name` Nullable(String) DEFAULT NULL COMMENT '责任人',
+    `contact_info` Nullable(String) DEFAULT NULL COMMENT '责任人联系方式',
+    `resource_id` Nullable(Int64) DEFAULT NULL COMMENT 'asset表关联resourceId',
+    `update_time` Nullable(DateTime) COMMENT '更新时间',
+    `create_time` DateTime DEFAULT now()
+)
+ENGINE = ReplacingMergeTree
+PARTITION BY id
+PRIMARY KEY id
+ORDER BY id
+SETTINGS index_granularity = 8192
+COMMENT '登录入口管理'

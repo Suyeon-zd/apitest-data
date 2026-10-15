@@ -1,0 +1,18 @@
+CREATE TABLE ADS.zjg_wlhyyxtyc_user_access_medium
+(
+    `id` String DEFAULT generateUUIDv4(),
+    `ip` String COMMENT '用户终端、服务器IP地址',
+    `ip_com_code` String,
+    `ip_sec_num` String,
+    `user_name` String COMMENT '用户终端、服务器责任人',
+    `department` String COMMENT '用户终端、服务器所属部门',
+    `security_level` String COMMENT '用户终端、服务器设备密级',
+    `medium_type` String COMMENT '介质类型；U盘、移动硬盘',
+    `medium_vid_pid` String COMMENT '介质VID、PID',
+    `access_time` DateTime COMMENT '接入时间'
+)
+ENGINE = MergeTree
+PARTITION BY toYYYYMMDD(access_time)
+ORDER BY (ip_com_code, ip, ip_sec_num, access_time)
+SETTINGS index_granularity = 8192
+COMMENT '网络和应用系统异常类监管事件-用户终端、服务器使用非授权普通USB移动存储介质'

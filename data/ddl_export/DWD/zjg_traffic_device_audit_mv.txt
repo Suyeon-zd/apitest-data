@@ -1,0 +1,31 @@
+CREATE MATERIALIZED VIEW DWD.zjg_traffic_device_audit_mv TO DWD.zjg_traffic_device_audit
+(
+    `updated_at` UInt64,
+    `updated_at_date_time` DateTime('Asia/Shanghai'),
+    `updated_at_date` Date,
+    `dev_id` String,
+    `data_type` UInt8,
+    `device_type` UInt8,
+    `device_model` Nullable(String),
+    `os` Nullable(String),
+    `os_version` Nullable(String),
+    `ip` Nullable(String),
+    `mac` Nullable(String),
+    `dns_info` String,
+    `extended_fields` Nullable(String)
+)
+AS SELECT
+    updated_at,
+    toDateTime(updated_at / 1000, 'Asia/Shanghai') AS updated_at_date_time,
+    toDate(toDateTime(updated_at / 1000, 'Asia/Shanghai')) AS updated_at_date,
+    device_id AS dev_id,
+    data_type,
+    device_type,
+    device_model,
+    os,
+    os_version,
+    ip,
+    mac,
+    dns_info,
+    extended_fields
+FROM DWD.zjg_traffic_device_audit_kafka

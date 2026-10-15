@@ -1,0 +1,26 @@
+CREATE MATERIALIZED VIEW DWD.mv_ods_to_dwd_computer_manage_outnet TO DWD.sjzl_asset_zjg_computer_manage_system
+(
+    `out_time` String,
+    `user_name` String,
+    `unit` String,
+    `department` String,
+    `department_id` String,
+    `full_department` String,
+    `log_event` String,
+    `company` String,
+    `desc` String,
+    `dev_ip` String
+)
+AS SELECT
+    log_time AS out_time,
+    user_name AS user_name,
+    company_name AS unit,
+    device_department_name AS department,
+    device_department_id AS department_id,
+    device_department_full_name AS full_department,
+    '违规外联日志' AS log_event,
+    '北信源' AS company,
+    description AS desc,
+    dev_ip AS dev_ip
+FROM ODS.sjzl_asset_taojian
+WHERE log_type = 3

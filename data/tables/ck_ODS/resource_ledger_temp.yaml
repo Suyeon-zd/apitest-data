@@ -1,0 +1,338 @@
+# data/tables/resource_ledger_temp.yaml
+# 应用系统资产：百万级批量造数（Excel 导入）+ 待更新配对数据（直插 CK）
+#
+# 全链路三阶段（可用 --stage 单独执行）：
+#   excel  → 以官方母版分批生成 xlsx（每文件 rows_per_file 行，数据从第 3 行起）
+#   upload → 程序逐文件 multipart 调导入接口，manifest 断点续传 + 回查对账
+#   temp   → 按编号前缀回查底账配对键，生成合法差异数据分批插 resource_ledger_temp
+#
+# 用法：
+#   python -m data.cli --config data/tables/resource_ledger_temp.yaml --dry-run --preview 3
+#   python -m data.cli --config data/tables/resource_ledger_temp.yaml --stage excel
+#   python -m data.cli --config data/tables/resource_ledger_temp.yaml --stage upload
+#   python -m data.cli --config data/tables/resource_ledger_temp.yaml --stage temp
+
+target: excel                       # 输出目标：excel（另有默认 db / api）
+name: asset_app_system
+
+# ==================== 可配置默认值（改这里，或命令行参数覆盖） ====================
+count: 1000000                      # ★默认 100 万行：改这里，或 --count 覆盖
+seed: 20260915                      # 随机种子（同参数产出可复现）
+rows_per_file: 10000                # ★单个 Excel 数据行数（百万级 ≈ 100 个文件）
+insert_batch_size: 50000            # ★阶段3 temp 每批生成+插入行数
+batch_prefix: "ZCBH260915-"         # ★批次编号前缀（建议按日期改；回查/对账/圈定本批均用它）
+min_ledger_ratio: 0.95              # 阶段3 允许的底账回查/预期行数下限（低于则中止）
+output_dir: "output/asset_excel"    # Excel 与 manifest 输出目录
+
+# ==================== 导入母版 ====================
+template:
+  path: "data/templates/asset_daoru.xlsx"   # 官方导入模板（表头/选项sheet/下拉的事实来源）
+  sheet: "应用系统"
+  data_start_row: 3                          # 第1行表头、第2行后端样例保留，数据从第3行起
+
+# 母版选项 sheet → 规则引擎数据池（下拉长列表以母版为准；改单位取值模式见 rules）
+excel_pools:
+  options_8: options_8              # 所属单位（2375 项）
+  options_30: options_30            # 责任单位
+  options_31: options_31            # 运维单位
+  options_35: options_35            # 关联服务器
+
+# SQL 数据池：从 MySQL sys_dept 查询单位名，与模板下拉取交集
+# 双重保险：Excel 下拉校验通过（在模板选项里）+ 后端映射有 com_code（在 sys_dept 里）
+# dry-run 时跳过 SQL 查询，直接用模板原值预览
+unit_sql_pool:
+  db: mysql                         # 使用 config 中的 mysql 连接
+  sql: "SELECT DISTINCT dept_name FROM sys_dept WHERE dept_category IS NOT NULL AND dept_name != ''"
+  field: dept_name                  # 取查询结果的哪一列
+  intersect: [options_8, options_30, options_31]   # 与这三个模板池取交集
+
+# ==================== 导入接口（F12 抓包） ====================
+import_api:
+  path: "/asset/instock/v2/importInstockAsset"
+  timeout: [5, 120]                 # 导入解析较慢，读取超时 120 秒
+  form:                             # multipart 表单固定参数
+    importType: add
+    assetType: 应用系统
+    wrapFileLevel: 公开
+
+# ==================== IP 分组规则 ====================
+# 同一个 IP（ips）多行时，下列组字段跨行完全一致；组大小按权重采样
+grouping:
+  fields: [asset_code, sys_name, owner_unit, duty_dept, duty_person, ips]
+  sizes: [1, 2, 3]                  # 每组 1/2/3 行
+  weights: [85, 12, 3]              # ★分布比例：85% 单 IP、12% 双行、3% 三行
+
+# ==================== Excel 36 列（顺序即母版列序） ====================
+fields:
+  - {name: asset_code, type: string}                 # *固定资产编号（组字段）
+  - {name: sys_name, type: string}                   # *系统名称（组字段）
+  - {name: sys_category, type: string}               # 系统类别
+  - {name: sub_category, type: string}               # 细分类别
+  - {name: purpose, type: string}                    # 用途
+  - {name: if_cloud, type: string}                   # 是否上云
+  - {name: sec_level, type: string}                  # *密级
+  - {name: deploy_location, type: string}             # 部署位置
+  - {name: owner_unit, type: string}                 # *所属单位（组字段）
+  - {name: duty_dept, type: string}                  # 责任部门（组字段）
+  - {name: duty_person, type: string}                # *责任人姓名（组字段）
+  - {name: duty_phone, type: string}                 # 责任人电话
+  - {name: start_date, type: date}                  # *启用日期
+  - {name: use_status, type: string}                # *使用状态
+  - {name: remark, type: string}                     # 备注
+  - {name: asset_label, type: string}                # 资产标签
+  - {name: server_num, type: string}                 # 服务器数量
+  - {name: os_version, type: string}                 # 操作系统版本
+  - {name: os_num, type: string}                     # 操作系统数量
+  - {name: database, type: string}                   # 数据库
+  - {name: db_version, type: string}                 # 数据库版本
+  - {name: db_ip, type: string}                      # 数据库IP
+  - {name: db_num, type: string}                     # 数据库数量
+  - {name: middleware, type: string}                 # 中间件
+  - {name: mw_version, type: string}                 # 中间件版本
+  - {name: mw_ip, type: string}                      # 中间件IP
+  - {name: mw_num, type: string}                     # 中间件数量
+  - {name: if_replace_range, type: string}           # 是否纳入替代范围
+  - {name: if_replaced, type: string}                # 是否已完成替代
+  - {name: framework, type: string}                  # 开发框架
+  - {name: resp_unit, type: string}                  # *责任单位
+  - {name: ops_unit, type: string}                   # *运维单位
+  - {name: ips, type: string}                        # *IP地址(IP:端口,逗号分割)（组字段）
+  - {name: classified_range, type: string}           # *涉密信息处理范围
+  - {name: net, type: string}                        # *所属网络
+  - {name: related_server, type: string}             # 关联服务器
+
+# ==================== 字段取值规则（固定值/随机均可在此配置） ====================
+rules:
+  com_code: {fixed: "4835"}
+  # 固定资产编号 = 批次前缀 + 7 位顺序号（确定性，跨文件连续，同 seed 重跑不变）
+  asset_code: {template: "ZCBH260915-{seq:7}"}
+#  sys_name: {faker: company}
+  sys_name: {fixed: "HTSZ资产管理系统"}
+  sys_category:
+    choice: [综合办公, 经营管理, 生产运营, 其他]
+  # 细分类别随系统类别联动（switch 按本行 sys_category 映射，保证业务语义合法）
+  sub_category:
+    switch:
+      # 注意 on 必须加引号，否则 YAML 1.1 把 on 解析为布尔 True
+      "on": sys_category
+      cases:
+        综合办公: {choice: [门户, "办公自动化（OA）", 电子邮件, 档案, 党群, 纪检监察, 其他]}
+        经营管理: {choice: [战略决策管理, 企业资源管理, 风险防控管理, 用户服务管理, 风险关系管理, 供应链管理, 其他]}
+        生产运营: {choice: [生产制造, 工程管理, 过程监控, 安全环保, 研发设计, 运营管理, 其他]}
+        其他: {fixed: 其他}
+      default: 其他
+  purpose: {faker: sentence, faker_kwargs: {nb_words: 2}}
+#  purpose:{fixed: "用于性能测试"}
+  if_cloud: {choice: [是, 否]}
+  sec_level: {choice: [非密, 内部, 秘密, 机密]}
+  deploy_location: {choice: [网络中心机房, 同城灾备机房, 本地机房, 楼层弱电间]}
+  # 所属/责任/运维单位：默认从母版长列表随机（模式A）；
+  # 想用固定少量单位（模式B）：把 from_pool 改成 {choice: [单位A, 单位B]} 即可
+  owner_unit: {from_pool: options_8}
+  duty_dept:
+    choice: [信息专项办公室, 网络运维部, 系统集成部, 研发中心, 综合管理部, 数据管理部]
+  duty_person: {faker: name}
+  duty_phone: {faker: phone_number}
+  start_date: {faker: date_between, faker_kwargs: {start_date: "-3y", end_date: "today"}}
+  # 使用状态默认固定"在用"；如需随机改为 {choice: [在用, 停用]}
+  use_status: {fixed: "在用"}
+  remark: {fixed: ""}
+  asset_label: {choice: [统建应用系统, 集团数据中心, 业务应用系统]}
+  server_num: {choice: ["1", "2", "3", "4", "5"]}
+  os_version: {choice: [麒麟V10, 统信V20, "3.0", Windows Server 2019]}
+  os_num: {choice: ["1", "2", "3"]}
+  database:
+    choice: [达梦, 金仓, 神舟通用, 瀚高, 南大通用, 东方金信, 华为GaussDB,
+             中兴GoldenDB, Oracle, MySQL, 其他]
+  db_version: {choice: [V8, V10, "5.7", "8.0", V1R2]}
+  db_ip: {faker: ipv4}
+  db_num: {choice: ["1", "2"]}
+  middleware:
+    choice: [ActiveMQ, Apache, Glassfish, IIS, Jboss, Kafka, Nacos, Nginx,
+             RabbitMQ, Redis, Resin, Tomcat, Weblogic, Websphere, Zookeeper,
+             普元, 金蝶, 东方通, 其他]
+  mw_version: {choice: [V1.5, V7.0, V9.0, "5.1"]}
+  mw_ip: {faker: ipv4}
+  mw_num: {choice: ["1", "2"]}
+  if_replace_range: {choice: [是, 否]}
+  if_replaced: {choice: [是, 否]}
+  framework: {choice: [spring, springboot, 若依, vue]}
+  resp_unit: {from_pool: options_30}
+  ops_unit: {from_pool: options_31}
+  # IP 列：生成 "IPv4:端口"（对齐样例格式）
+  ips: {ip_port: {port_min: 8000, port_max: 9000}}
+  classified_range: {choice: [非密, 内部, 秘密, 机密]}
+  net: {choice: [国密网, 国密网和商密网, 其他]}
+  related_server: {from_pool: options_35}
+
+# 编号、IP 必须全局唯一（撞车自动重生成）
+unique: [asset_code, ips]
+
+# ==================================================================
+# 阶段3：resource_ledger_temp 配对造数
+# ==================================================================
+stage_temp:
+  database: ODS
+  table: resource_ledger_temp
+  # 配对键：照搬底账实际入库值（后端导入时已正确映射 com_code/duty_unit_code 等）
+  # 9 个核心配对键 + 4 个单位字段（name↔code 一致性由后端导入映射保证）
+  pair_keys: [resource_id, com_code, type, sec_num, net,
+              sec_level, ips, asset_code,
+              duty_unit_code, duty_unit_name,
+              operation_unit_code, operation_unit_name]
+
+  # 差异字段规则：
+  #   diff_choice  → 排除底账原值后从合法列表随机（保证 100% 合法且不同）
+  #   faker        → faker 生成，碰撞原值自动重试
+  diff_rules:
+    name: {faker: company}
+    brand: {diff_choice: [华为, 联想, 浪潮, 戴尔, 新华三, 中兴, 宝德]}
+    model: {faker: bothify, faker_kwargs: {text: "Model-????-####"}}
+    purpose: {faker: sentence, faker_kwargs: {nb_words: 4}}
+    dept_name: {faker: name}
+    location: {diff_choice: [网络中心机房, 本地机房, 同城机房, 楼层弱电间]}
+    user_name: {faker: name}
+    system: {diff_choice: [银河麒麟, 统信UOS, CentOS, Windows Server, 欧拉]}
+    sys_date: {faker: date_between, faker_kwargs: {start_date: "-5y", end_date: "today"}}
+#    status: {diff_choice: [在用, 闲置, 待报废, 维修中]}
+    status: { fixed: "待审批" }
+    remarks: {faker: sentence, faker_kwargs: {nb_words: 6}}
+    initate_date: {faker: date_between, faker_kwargs: {start_date: "-5y", end_date: "today"}}
+#    inductive_status: {diff_choice: [已纳管, 未纳管]}
+    inductive_status: { fixed: "未纳管" }
+    asset_use_status: {diff_choice: [在用, 停用]}
+    classified_range: {diff_choice: [非密, 内部, 秘密, 机密]}
+    is_host_protect: {diff_choice: [是, 否]}
+    is_native_system: {diff_choice: [是, 否]}
+    # 以下为 NOT NULL 且无默认值列：必须提供合法固定值
+    dev_type: {fixed: "应用系统"}
+    operation_url: {fixed: ""}
+    port: {fixed: ""}
+    update_from: {fixed: "3"}
+    is_to_updated: {fixed: 1}
+    mac: {faker: mac_address}
+
+  # temp 表建表语句（字段名/类型/顺序的依据；注释已简化）
+  ddl: |-
+    CREATE TABLE ODS.resource_ledger_temp
+    (
+      resource_id Int64 COMMENT '资产底账id',
+      com_code String COMMENT '单位',
+      org_address_code String DEFAULT '999999' COMMENT '地理位置邮政编码',
+      `type` Nullable(String) COMMENT '设备类型',
+      sn Nullable(String) COMMENT '设备序列号',
+      sec_num String COMMENT 'BM编号',
+      net Nullable(String) COMMENT '所属网络',
+      private_type Nullable(String) COMMENT '自定义网络',
+      name Nullable(String) COMMENT '设备名称',
+      brand Nullable(String) COMMENT '品牌',
+      model Nullable(String) COMMENT '型号',
+      sec_level Nullable(String) COMMENT '密级',
+      purpose Nullable(String) COMMENT '用途',
+      dept_name Nullable(String) COMMENT '更新者',
+      location Nullable(String) COMMENT '位置',
+      user_name Nullable(String) COMMENT '责任人',
+      system Nullable(String) COMMENT '操作系统',
+      sys_date Nullable(Date) COMMENT '操作系统安装时间',
+      disk_sns Nullable(String) COMMENT '硬盘序列号',
+      ips Nullable(String) COMMENT 'IP地址',
+      mac Nullable(String) COMMENT 'MAC地址',
+      initate_date Nullable(Date) COMMENT '启动时间',
+      status Nullable(String) COMMENT '使用情况',
+      asset_code Nullable(String) COMMENT '资产编号',
+      remarks Nullable(String) COMMENT '备注',
+      mfr Nullable(String) COMMENT '生产厂家',
+      usb_code Nullable(String) COMMENT 'USB识别码',
+      cert_name Nullable(String) COMMENT '检测证书名称',
+      cert_code Nullable(String) COMMENT '检测证书编码',
+      buy_time Nullable(Date) COMMENT '购买时间',
+      conn_type Nullable(String) COMMENT '接入方式',
+      integrator_name Nullable(String) COMMENT '集成商',
+      three_admin Nullable(String) COMMENT '系统三员',
+      admin_ip Nullable(String) COMMENT '管理IP',
+      domestic Nullable(String) COMMENT '国产化',
+      switch_ip Nullable(String) COMMENT '接入交换机IP',
+      switch_port Nullable(String) COMMENT '交换机端口',
+      to_code Nullable(String) COMMENT '信息点编号',
+      three_in_one Nullable(String) COMMENT '三合一',
+      antivirus Nullable(String) COMMENT '杀毒软件',
+      host_audit Nullable(String) COMMENT '主机审计',
+      print_audit Nullable(String) COMMENT '打印审计',
+      net_card_type Nullable(String) COMMENT '网卡类型',
+      bios_pwd Nullable(String) COMMENT 'BIOS密码',
+      source_from Nullable(UInt8) COMMENT '数据来源',
+      update_time Nullable(DateTime) COMMENT '更新时间',
+      compliance Int32 DEFAULT 1 COMMENT '合规性',
+      id_card Nullable(String) COMMENT '资产所有人身份证',
+      single_select Nullable(UInt8) COMMENT '布尔类型',
+      exp Nullable(UInt8) COMMENT '布尔类型',
+      is_special Nullable(String),
+      page Nullable(UInt8) COMMENT '布尔类型',
+      proc_table_list Nullable(UInt8) COMMENT '布尔类型',
+      params Nullable(String) COMMENT '传参',
+      hash_value Nullable(String) COMMENT 'hash值',
+      dev_type String COMMENT '设备大类',
+      operation_url String COMMENT '管理入库URL',
+      port String COMMENT '服务端口',
+      person_no Nullable(String) COMMENT '人员编码',
+      parent_no Nullable(String) COMMENT '组织机构编码',
+      is_syn String DEFAULT '1',
+      admin_mac Nullable(String) COMMENT '管理入库MAC',
+      protocol Nullable(String) COMMENT '协议',
+      port_server Nullable(String) COMMENT '端口服务',
+      realm_name Nullable(String) COMMENT '域名',
+      related_task Nullable(String) COMMENT '关联任务',
+      work_no Nullable(String) COMMENT '工单编号',
+      wait_baod_level Nullable(String) COMMENT '等保定级',
+      is_to_updated UInt8 DEFAULT 0 COMMENT '是否待更新',
+      app_url Nullable(String) COMMENT '登录入口网址',
+      login_portal_name Nullable(String) COMMENT '入口名称',
+      login_portal_type Nullable(String) COMMENT '入口类型',
+      login_portal_phone Nullable(String) COMMENT '入口联系电话',
+      update_from String COMMENT '更新来源',
+      discovery_time DateTime DEFAULT now() COMMENT '发现时间',
+      inductive_status Nullable(String) DEFAULT '未纳管' COMMENT '纳管状态',
+      is_host_protect Nullable(String) COMMENT '是否纳入主防',
+      asset_label Nullable(String) COMMENT '资产标签',
+      framework Nullable(String) COMMENT '开发框架',
+      duty_unit_code Nullable(String) COMMENT '责任单位编码',
+      duty_unit_name Nullable(String) COMMENT '责任单位名称',
+      operation_unit_code Nullable(String) COMMENT '运维单位编码',
+      operation_unit_name Nullable(String) COMMENT '运维单位名称',
+      asset_use_status Nullable(String) COMMENT '使用状态',
+      ip_port_list Nullable(String) COMMENT 'IP端口协议组件版本集合',
+      component Nullable(String) COMMENT '组件',
+      middleware_ip_list Nullable(String) COMMENT '中间件IP版本集合',
+      database_ip_list Nullable(String) COMMENT '数据库IP版本集合',
+      asset_form Nullable(String) COMMENT '资产形态',
+      cabinet_no Nullable(String) COMMENT '机柜号',
+      last_online_time DateTime DEFAULT now() COMMENT '最后在线时间',
+      os_version Nullable(String) COMMENT '操作系统版本',
+      serial_no Nullable(String) COMMENT '出厂编号',
+      cpu_framework Nullable(String) COMMENT 'CPU架构',
+      cpu_model Nullable(String) COMMENT 'CPU型号',
+      is_control Nullable(String) COMMENT '是否自主可控',
+      memory_info Nullable(String) COMMENT '内存信息',
+      online_duration Nullable(String) COMMENT '在线时长',
+      is_native_system Nullable(String) COMMENT '是否信创原生',
+      classified_range Nullable(String) COMMENT '涉密信息处理范围',
+      mfr_attribute Nullable(String) COMMENT '厂商属性',
+      super_unit_code Nullable(String) COMMENT '上级单位编码',
+      super_unit_name Nullable(String) COMMENT '上级单位名称',
+      country_region Nullable(String) COMMENT '国家或地区',
+      product_date Date DEFAULT today() COMMENT '生产日期',
+      storage_capacity Nullable(String) COMMENT '存储能力',
+      compute_core Nullable(String) COMMENT '核心数',
+      compute_rate Nullable(String) COMMENT '频率',
+      net_region Nullable(String) COMMENT '网络区域',
+      install_software Nullable(String) COMMENT '安装软件',
+      install_safe_product Nullable(String) COMMENT '安全产品',
+      net_bandwidth Nullable(String) COMMENT '联网带宽',
+      association_id Nullable(String) COMMENT '关联资产id',
+      work_status Nullable(String) COMMENT '工单状态',
+      cert_validity_period Nullable(Date) COMMENT '证书有效期'
+    )
+    ENGINE = MergeTree
+    ORDER BY resource_id
+    SETTINGS index_granularity = 8192
+    COMMENT '资产待更新表'

@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.pyc
+
+# 运行产物（造数输出 / 日志）
+output/
+.pytest_cache/
+
+# 密钥与本地配置（.env.example 作为模板保留入库）
+.env
+.env.*
+!.env.example
+
+# IDE / 工具目录
+.idea/
+.vscode/
+.trae/
+
+# 大文件与临时产物
+*.har
+*.bak

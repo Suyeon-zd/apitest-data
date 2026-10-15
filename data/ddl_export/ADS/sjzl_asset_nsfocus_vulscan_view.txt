@@ -1,0 +1,47 @@
+CREATE VIEW ADS.sjzl_asset_nsfocus_vulscan_view
+(
+    `r_id` String,
+    `dev_ip` String,
+    `reporting_time` DateTime,
+    `vul_task_id` String,
+    `ips` String,
+    `vul_id` Int32,
+    `task_name` String,
+    `protocol` String,
+    `service` String,
+    `port` Int32,
+    `level` String,
+    `mess_string` String,
+    `threat_category` String,
+    `description` String,
+    `solution` String,
+    `com_code` String,
+    `tenant_id` String,
+    `deal_status` String,
+    `c_sign` Int8,
+    `max_version` DateTime
+)
+AS SELECT
+    r_id,
+    argMax(dev_ip, c_version) AS dev_ip,
+    argMax(reporting_time, c_version) AS reporting_time,
+    argMax(vul_task_id, c_version) AS vul_task_id,
+    argMax(ips, c_version) AS ips,
+    argMax(vul_id, c_version) AS vul_id,
+    argMax(task_name, c_version) AS task_name,
+    argMax(protocol, c_version) AS protocol,
+    argMax(service, c_version) AS service,
+    argMax(port, c_version) AS port,
+    argMax(level, c_version) AS level,
+    argMax(mess_string, c_version) AS mess_string,
+    argMax(threat_category, c_version) AS threat_category,
+    argMax(description, c_version) AS description,
+    argMax(solution, c_version) AS solution,
+    argMax(com_code, c_version) AS com_code,
+    argMax(tenant_id, c_version) AS tenant_id,
+    argMax(deal_status, c_version) AS deal_status,
+    argMax(c_sign, c_version) AS c_sign,
+    max(c_version) AS max_version
+FROM ADS.sjzl_asset_nsfocus_vulscan
+GROUP BY r_id
+HAVING c_sign >= 0

@@ -1,0 +1,10 @@
+CREATE TABLE ADS.gongan_vul_event
+(
+    `id` UUID DEFAULT generateUUIDv4(),
+    `vul_name` String,
+    `cve_id` String,
+    `cnnvd` String
+)
+ENGINE = MergeTree
+ORDER BY id
+SETTINGS index_granularity = 8192

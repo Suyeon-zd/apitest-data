@@ -1,0 +1,20 @@
+CREATE TABLE DWD.zjg_yhzdkh_terminallocal_printburn
+(
+    `id` String DEFAULT generateUUIDv4(),
+    `opt_type` String COMMENT '用户终端刻画、运维终端刻画、服务器刻画',
+    `com_code` String,
+    `sec_num` String COMMENT 'BM编号',
+    `ip` String,
+    `mac_mid` String,
+    `os_login_time` Date,
+    `print_times_mid` String,
+    `print_file_list_mid` String,
+    `burn_times_mid` String,
+    `burn_file_list_mid` String,
+    `burn_file_size_mid` Float32,
+    `create_time` DateTime DEFAULT now() COMMENT '数据写入时间'
+)
+ENGINE = ReplacingMergeTree(create_time)
+PARTITION BY toYYYYMM(os_login_time)
+ORDER BY (opt_type, com_code, sec_num, ip, os_login_time)
+SETTINGS index_granularity = 8192

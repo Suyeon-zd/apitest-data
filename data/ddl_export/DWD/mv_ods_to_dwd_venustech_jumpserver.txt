@@ -1,0 +1,39 @@
+CREATE MATERIALIZED VIEW DWD.mv_ods_to_dwd_venustech_jumpserver TO DWD.sjzl_asset_unified_jumpserver
+(
+    `log_time` DateTime,
+    `session_id` String,
+    `user_name` String,
+    `src_ip` String,
+    `dev_ip` String,
+    `dst_ip` String,
+    `protocol` String,
+    `resource_account` String,
+    `login_type` String,
+    `action` String,
+    `command` String,
+    `operate_result` String,
+    `risk_level` String,
+    `policy_name` String,
+    `vendor` String,
+    `com_code` String,
+    `orig_log` String
+)
+AS SELECT
+    log_time,
+    session_id,
+    user_name,
+    user_addr AS src_ip,
+    dev_ipv4 AS dev_ip,
+    resource_addr AS dst_ip,
+    login_type AS protocol,
+    resource_account,
+    login_type,
+    login_action AS action,
+    command,
+    '' AS operate_result,
+    '' AS risk_level,
+    '' AS policy_name,
+    '启明星辰' AS vendor,
+    com_code,
+    json_mess AS orig_log
+FROM ODS.sjzl_asset_venustech_jumpserver

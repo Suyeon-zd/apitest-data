@@ -1,0 +1,37 @@
+CREATE TABLE DWD.sjzl_asset_unified_jumpserver
+(
+    `soc_uuid` String DEFAULT generateUUIDv4() COMMENT '会话唯一标识',
+    `soc_date` Date DEFAULT toDate(log_time) COMMENT '日志日期',
+    `soc_date_time_timestamp` UInt64 DEFAULT toUnixTimestamp(toDateTime64(soc_date_time, 3)) * 1000 COMMENT '创建时间时间戳(毫秒)',
+    `report_time` DateTime DEFAULT now(),
+    `report_time_timestamp` UInt64 DEFAULT toUnixTimestamp(toDateTime64(report_time, 3)) * 1000 COMMENT '创建时间时间戳(毫秒)',
+    `soc_date_time` DateTime DEFAULT now(),
+    `log_time` DateTime COMMENT '日志产生时间',
+    `session_id` String COMMENT '运维会话ID',
+    `user_name` String COMMENT '运维人员登录账号',
+    `src_ip` String COMMENT '运维人员登录IP',
+    `dev_ip` String COMMENT '堡垒机设备IP',
+    `dst_ip` String COMMENT '被运维目标资产IP',
+    `protocol` String COMMENT '运维协议(SSH/RDP/Telnet)',
+    `resource_account` String COMMENT '目标资产登录账号',
+    `login_type` String COMMENT '登录方式(SSH/RDP/VNC)',
+    `action` String COMMENT '操作类型(登录/命令/上传/下载)',
+    `command` String COMMENT '执行的命令内容',
+    `operate_result` String COMMENT '操作结果(成功/失败)',
+    `risk_level` String COMMENT '风险等级(低/中/高/紧急)',
+    `policy_name` String COMMENT '命中的安全策略名称',
+    `vendor` String COMMENT '设备厂商(奇安信/绿盟/启明星辰等)',
+    `department` String COMMENT '运维人员所属部门',
+    `com_code` String COMMENT '单位编码',
+    `orig_log` String COMMENT '原始日志JSON',
+    `json_mess` String COMMENT '原始日志JSON备份',
+    `log_result` String COMMENT '日志结果',
+    `log_type` String COMMENT '日志类型',
+    `login_user` String COMMENT '三员登录用户名'
+)
+ENGINE = MergeTree
+PARTITION BY toYYYYMMDD(soc_date)
+ORDER BY (soc_uuid, log_time, src_ip)
+TTL soc_date + toIntervalDay(180)
+SETTINGS index_granularity = 8192
+COMMENT '堡垒机统一审计日志表(DWD层)'

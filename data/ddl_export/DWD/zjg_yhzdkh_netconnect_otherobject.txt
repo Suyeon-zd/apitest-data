@@ -1,0 +1,24 @@
+CREATE TABLE DWD.zjg_yhzdkh_netconnect_otherobject
+(
+    `id` String DEFAULT generateUUIDv4(),
+    `opt_type` String COMMENT '用户终端刻画、运维终端刻画、服务器刻画',
+    `com_code` String,
+    `sec_num` String COMMENT 'BM编号',
+    `ip` String,
+    `mac_mid` String,
+    `os_login_time` Date,
+    `interaction_object_type_mid` String,
+    `interaction_range_mid` String,
+    `interaction_ip_list_mid` String,
+    `flow_size_mid` String,
+    `interaction_times_mid` String,
+    `create_time` DateTime DEFAULT now() COMMENT '创建时间',
+    `unit_of_accessnode_mid` String DEFAULT '',
+    `network_perimeter_type_mid` String DEFAULT '',
+    `upstream_size_mid` Float32 DEFAULT 0.,
+    `downstream_size_mid` Float32 DEFAULT 0.
+)
+ENGINE = ReplacingMergeTree(create_time)
+PARTITION BY toYYYYMM(os_login_time)
+ORDER BY (opt_type, com_code, sec_num, ip, os_login_time)
+SETTINGS index_granularity = 8192

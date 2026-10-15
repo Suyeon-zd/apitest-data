@@ -1,0 +1,30 @@
+CREATE TABLE DWD.zjg_traffic_device_status
+(
+    `soc_uuid` String DEFAULT generateUUIDv4(),
+    `tenant_id` Nullable(String),
+    `soc_date_time` DateTime DEFAULT now(),
+    `soc_date` Date DEFAULT toDate(soc_date_time),
+    `soc_date_time_timestamp` UInt64 DEFAULT toUnixTimestamp(toDateTime64(soc_date_time, 3)) * 1000 COMMENT '创建时间时间戳(毫秒)',
+    `record_time` UInt64 COMMENT '当前状态记录时间，单位毫秒',
+    `record_date_time` DateTime DEFAULT toDateTime(record_time / 1000, 'Asia/Shanghai'),
+    `record_date` Date DEFAULT toDate(toDateTime(record_time / 1000)),
+    `dev_id` String COMMENT '设备ID保密检测器标识码',
+    `data_type` UInt8 COMMENT '数据类型：1、网络通联行为审计日志；2、应用行为审计日志；3、状态信息；4、其他',
+    `device_sys_version` Nullable(String) COMMENT '操作系统版本',
+    `device_soft_version` Nullable(String) COMMENT '设备软件版本',
+    `device_bios_version` Nullable(String) COMMENT '固件版本(bios)',
+    `device_cpu_core` UInt8 COMMENT '设备CPU物理核数',
+    `device_cpu_usage` UInt8 COMMENT '设备CPU利用率，按百分比四舍五入取整',
+    `device_mem_size` UInt8 COMMENT '内存大小，以GB为单位',
+    `device_status` Nullable(String) COMMENT '硬盘使用状态',
+    `device_mem_usage` UInt8 COMMENT '设备内存使用率，按百分比四舍五入取整',
+    `interface_status` Nullable(String) COMMENT '接口状态',
+    `monitor_ip` String COMMENT '保密检测器数据回传口ip',
+    `manage_url` String COMMENT '保密检测器管理入口URL'
+)
+ENGINE = ReplacingMergeTree
+PARTITION BY record_date
+ORDER BY (dev_id, data_type, record_time)
+TTL soc_date + toIntervalDay(180)
+SETTINGS index_granularity = 8192
+COMMENT '保密检测器-设备状态信息'

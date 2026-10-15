@@ -1,0 +1,56 @@
+# 开发环境配置
+base_url: "http://10.148.242.205/dev-api"
+login_path: "/auth/login"        # 登录接口路径（AuthManager 使用，默认 /auth/login）
+
+# 登录鉴权信息（敏感项经环境变量注入：本地在 .env 配置，CI 中注入同名环境变量）
+clientid: "${CLIENT_ID}"
+encrypt-key: "${ENCRYPT_KEY}"
+payload: "${LOGIN_PAYLOAD}"
+Content-Type: text/plain
+
+# 请求与重试配置
+timeout: [5, 10]
+
+# Token 自动刷新配置
+token_expire_seconds: 1800    # Token 有效期（秒），按实际后端配置调整
+token_refresh_buffer: 60      # 提前 N 秒刷新
+
+# 用例变量：用例 YAML 的 payload/path 中可用 ${NAME} 引用（避免把环境相关的 ID 写死在用例里）
+# 运行时 extract 提取的同名变量会覆盖此处的值，因此可作为"环境默认值"打底
+case_vars:
+  DEPT_ID: "100"                                  # 默认部门 ID（资产/系统模块查询用）
+  GROUP_ID: "9c18b99c158c4cd1b2c7e2d59b3c2598"    # 默认资产分组 ID
+
+# 数据库配置（用于数据库断言，可选）
+# 支持多库：key 为别名，在 db_compare 断言中用 db 字段引用
+# type 可选：mysql / clickhouse
+# database 字段可选：连接时的默认库
+#   - MySQL 不填则连上不选默认库，跨库查询在 SQL 中用 `db.table` 或在断言规则加 database 字段
+#   - ClickHouse 不填时默认 "default"
+#   - 跨库时也可在 db_compare 规则或表定义里加 database 字段覆盖默认库
+# 敏感信息（密码等）通过环境变量注入：${VAR} 必填，${VAR:-默认值} 带默认值
+# 本地开发在项目根目录 .env 中配置；CI 中直接配置环境变量
+databases:
+  mysql:                          # 人员组织机构等配置数据
+    type: mysql
+    host: "10.148.242.205"
+    port: 3306
+    user: "root"
+    password: "${MYSQL_PASSWORD}"
+    database: "soc-cloud"
+    charset: "utf8mb4"
+  ck:                             # 业务数据
+    type: clickhouse
+    host: "10.148.242.206"
+    port: 8123
+    username: "issa"
+    password: "${CK_PASSWORD}"
+    database: "ADS"
+  transwarp:
+    type: transwarp                   # 触发 TranswarpDriver
+    host: "10.148.242.xxx"
+    port: 10000                       # HiveServer2 默认端口
+    auth_mechanism: "LDAP"            # 或 GSSAPI（Kerberos）
+    user: "${TW_USER}"
+    password: "${TW_PASSWORD}"
+    database: "ODS"

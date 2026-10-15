@@ -1,0 +1,26 @@
+CREATE TABLE DWD.zjg_yhzdkh_file_transfer_info
+(
+    `id` String DEFAULT generateUUIDv4(),
+    `opt_type` String COMMENT '用户终端刻画、运维终端刻画、服务器刻画',
+    `com_code` String,
+    `sec_num` String COMMENT 'BM编号',
+    `ip` String,
+    `mac_mid` String,
+    `os_login_time` Date,
+    `upload_file_size_mid` Float32,
+    `download_file_size_mid` Float32,
+    `upload_time_range_mid` String,
+    `download_time_range_mid` String,
+    `upload_times_mid` UInt32,
+    `download_times_mid` UInt32,
+    `transfer_list_mid` String,
+    `transfer_file_type_range_mid` String,
+    `create_time` DateTime DEFAULT now() COMMENT '创建时间',
+    `network_perimeter_type_mid` String DEFAULT '',
+    `unit_of_accessnode_mid` String DEFAULT '',
+    `transfer_type_range_mid` String
+)
+ENGINE = ReplacingMergeTree(create_time)
+PARTITION BY toYYYYMM(os_login_time)
+ORDER BY (opt_type, com_code, sec_num, ip, os_login_time)
+SETTINGS index_granularity = 8192

@@ -1,0 +1,54 @@
+CREATE TABLE ODS.sys_zf_zserve
+(
+    `soc_uuid` String DEFAULT generateUUIDv4(),
+    `soc_date` Date DEFAULT CAST(now(), 'Date'),
+    `soc_date_time` DateTime DEFAULT now(),
+    `soc_date_time_timestamp` UInt64 DEFAULT toUnixTimestamp(toDateTime64(soc_date_time, 3)) * 1000 COMMENT '创建时间时间戳(毫秒)',
+    `com_code` String,
+    `date` DateTime COMMENT '操作时间',
+    `host_name` String COMMENT '主机名',
+    `dept_name` String COMMENT '部门名称',
+    `node_name` String COMMENT '节点名称',
+    `level` String COMMENT '防护等级',
+    `ip` String COMMENT 'IP地址',
+    `rec_time` String COMMENT '记录时间',
+    `dept_id` String COMMENT '部门ID',
+    `host_id` String COMMENT '主机ID',
+    `audit_type` String COMMENT '审计类型',
+    `user_name` String COMMENT '用户名称',
+    `user_id` String COMMENT '用户ID',
+    `mac` String COMMENT 'MAC地址',
+    `event_type` String COMMENT '事件类型',
+    `operation_type` String COMMENT '操作类型',
+    `execute_command` String COMMENT '执行命令',
+    `pc_name` String COMMENT '计算机名称',
+    `content_mac` String,
+    `event_time` String COMMENT '事件时间',
+    `login_time` String COMMENT '登录时间',
+    `logout_time` String COMMENT '登出时间',
+    `status` String COMMENT '状态',
+    `is_work_time` String COMMENT '是否正常时间段',
+    `install_software` String COMMENT '安装软件',
+    `audit_time` String COMMENT '审计时间',
+    `user_account` String COMMENT '用户账号',
+    `before_time` String COMMENT '修改前时间',
+    `after_time` String COMMENT '修改后时间',
+    `result` String COMMENT '审计结果',
+    `node_id` String COMMENT '节点ID',
+    `object_name` String COMMENT '主体名称',
+    `behaviour_type` String COMMENT '行为类型',
+    `dev_ip` String COMMENT '标识ip',
+    `log_source_ip` String COMMENT '源ip',
+    `reporting_time` String COMMENT '解析时间',
+    `flag` UInt8 DEFAULT 1,
+    `uninstall_software` String COMMENT '卸载软件',
+    `connect_device` String COMMENT '连接设备',
+    `remove_device` String COMMENT '移除设备',
+    `json_mess` Nullable(String) TTL soc_date + toIntervalDay(1)
+)
+ENGINE = MergeTree
+PARTITION BY toYYYYMMDD(date)
+PRIMARY KEY soc_uuid
+ORDER BY (soc_uuid, date)
+TTL soc_date + toIntervalDay(180)
+SETTINGS index_granularity = 8192

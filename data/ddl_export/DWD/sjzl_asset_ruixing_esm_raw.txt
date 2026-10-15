@@ -1,0 +1,40 @@
+CREATE TABLE DWD.sjzl_asset_ruixing_esm_raw
+(
+    `soc_uuid` String DEFAULT generateUUIDv4() COMMENT '日志ID',
+    `soc_date` Date DEFAULT now() COMMENT '日期',
+    `soc_date_time` DateTime DEFAULT now() COMMENT '日期时间',
+    `soc_date_time_timestamp` UInt64 DEFAULT toUnixTimestamp(toDateTime64(soc_date_time, 3)) * 1000 COMMENT '日期时间-时间戳(毫秒)',
+    `report_time` DateTime DEFAULT now() COMMENT '日志时间',
+    `report_time_timestamp` UInt64 DEFAULT toUnixTimestamp(toDateTime64(report_time, 3)) * 1000 COMMENT '日志时间-时间戳',
+    `com_code` String COMMENT '日志所属单位编码',
+    `key1` String,
+    `taskname` String,
+    `virusname` String,
+    `filepath` String,
+    `id` String,
+    `state` String,
+    `ip` String,
+    `threatmethod` String,
+    `virusclass` String,
+    `leix` String,
+    `time` DateTime,
+    `table` String,
+    `timestamp` String,
+    `dev_ip` String,
+    `flag` UInt8 DEFAULT 1,
+    `uuid` UUID DEFAULT generateUUIDv4(),
+    `json_mess` Nullable(String) DEFAULT NULL COMMENT '原始日志JSON',
+    `orig_log` Nullable(String) DEFAULT NULL COMMENT '原始日志',
+    `user_account` String,
+    `recep_time` UInt16,
+    `org_address_code` String,
+    `virus_type` String,
+    `log_desc` String COMMENT '日志描述',
+    `log_result` String COMMENT '日志结果'
+)
+ENGINE = MergeTree
+PARTITION BY toYYYYMMDD(soc_date)
+PRIMARY KEY soc_uuid
+ORDER BY (soc_uuid, soc_date)
+TTL soc_date + toIntervalDay(180)
+SETTINGS index_granularity = 8192

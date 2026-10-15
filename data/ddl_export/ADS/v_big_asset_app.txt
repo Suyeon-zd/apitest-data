@@ -1,0 +1,27 @@
+CREATE VIEW ADS.v_big_asset_app
+(
+    `ips` Nullable(String),
+    `dev_name` Nullable(String),
+    `user_name` Nullable(String),
+    `sec_level` String,
+    `app_url` Nullable(String),
+    `operation_url` String,
+    `com_code` String,
+    `resource_id` Int64,
+    `dept_name` Nullable(String),
+    `dev_type` Nullable(String)
+)
+AS SELECT
+    a.ips,
+    a.dev_name,
+    a.user_name,
+    a.sec_level,
+    a.app_url,
+    a.operation_url,
+    a.com_code,
+    a.resource_id,
+    a.dept_name,
+    a.dev_type
+FROM ADS.big_asset_status AS a
+LEFT JOIN ADS.login_portal_asset AS b ON a.resource_id = b.resource_id
+WHERE (a.dev_type = '应用系统') AND (a.status = '在用')
